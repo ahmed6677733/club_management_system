@@ -1,0 +1,525 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+    <!-- Professional Hero Section -->
+    <section class="professional-hero bg-light-gray">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-lg-1 order-2">
+                    <div class="hero-content pe-lg-5">
+                        <span class="badge bg-soft-blue text-dark-blue mb-3">ESTABLISHED 2021</span>
+                        <h1 class="display-4 fw-bold text-dark-blue mb-4">Uttara Dynamic Club</h1>
+                        <div class="rotating-text text-dark-blue mb-4">
+                            <span class="fw-bold">Building </span>
+                            <span class="cd-headline text-accent">
+                                <span class="cd-words-wrapper">
+                                    <b class="is-visible">Community</b>
+                                    <b>Leadership</b>
+                                    <b>Excellence</b>
+                                </span>
+                            </span>
+                        </div>
+                        <p class="lead text-dark-blue mb-5">
+                            A premier organization dedicated to fostering professional development, community service, and meaningful connections among members.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{% url 'membership_registration' %}" class="btn btn-dark-blue btn-lg px-4">
+                                <i class="bi bi-person-plus me-2"></i> Join Our Community
+                            </a>
+                            <a href="#about" class="btn btn-outline-dark-blue btn-lg px-4">
+                                <i class="bi bi-info-circle me-2"></i> Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-lg-2 order-1 mb-lg-0 mb-5">
+                    <div class="hero-image-container">
+                        <div class="main-image">
+                            <img src="{% static 'base/images/img1.jpg' %}" alt="Club Members" class="img-fluid rounded-3 shadow">
+                        </div>
+                        <div class="image-badge bg-accent text-white">
+                            <div class="d-flex align-items-center">
+                                <div class="badge-icon me-2">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="badge-number fw-bold">{{ member_count }}+</div>
+                                    <div class="badge-text">Active Members</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section bg-dark-blue text-white py-6">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="stat-card text-center p-4 h-100">
+                        <div class="stat-icon bg-accent text-white rounded-circle mx-auto mb-4">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <h2 class="stat-number display-4 fw-bold mb-2" data-count="{{ committee_count }}">0</h2>
+                        <h3 class="h4 mb-3">Active Committees/Programs</h3>
+                        <p class="mb-0 opacity-75">Specialized working groups driving initiatives</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card text-center p-4 h-100">
+                        <div class="stat-icon bg-accent text-white rounded-circle mx-auto mb-4">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <h2 class="stat-number display-4 fw-bold mb-2" data-count="{{ member_count }}">0</h2>
+                        <h3 class="h4 mb-3">Total Members</h3>
+                        <p class="mb-0 opacity-75">Professionals in our growing network</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card text-center p-4 h-100">
+                        <div class="stat-icon bg-accent text-white rounded-circle mx-auto mb-4">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <h2 class="stat-number display-4 fw-bold mb-2" data-count="{{ total_fees_collected }}">0</h2>
+                        <h3 class="h4 mb-3">Total Fees Collected</h3>
+                        <div class="fee-types mt-3">
+                            {% for fee in fee_totals %}
+                            <div class="fee-type-item d-flex justify-content-between small py-1">
+                                <span>{{ fee.fee_name__name }}:</span>
+                                <span class="fw-medium">৳{{ fee.total_amount|floatformat:2 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision & Mission Section -->
+    <section class="vision-mission-section py-6 bg-white">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6">
+                    <div class="vision-card p-5 h-100 rounded-3 shadow-sm" style="background-color: var(--accent-light);">
+                        <div class="section-icon mb-4">
+                            <i class="bi bi-eye-fill text-accent" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h2 class="text-dark-blue mb-4">Vision Statement</h2>
+                        <p class="lead text-dark-blue">
+                            To foster a vibrant, inclusive community that promotes well-being, celebrates cultural diversity, 
+                            and encourages active, healthy lifestyles through compassionate service, creative expression, 
+                            and athletic excellence.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mission-card p-5 h-100 rounded-3 shadow-sm" style="background-color: var(--soft-blue);">
+                        <div class="section-icon mb-4">
+                            <i class="bi bi-bullseye text-dark-blue" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h2 class="text-dark-blue mb-4">Mission Statement</h2>
+                        <p class="lead text-dark-blue">
+                            Our mission is to enhance student life by promoting social welfare, celebrating cultural diversity, 
+                            and encouraging active participation in sports and physical well-being. We strive to build a 
+                            supportive, inclusive, and dynamic community through service, creativity, and teamwork.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section py-6 bg-light-gray">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-soft-blue text-dark-blue mb-2">GALLERY</span>
+                <h2 class="display-5 fw-bold text-dark-blue mb-3">Our Moments</h2>
+                <p class="lead text-dark-blue mx-auto" style="max-width: 700px">
+                    Capturing the essence of our community through memorable events and activities
+                </p>
+            </div>
+            
+            <div class="professional-gallery">
+                <div class="gallery-grid">
+                    <div class="gallery-item main-item" style="background-image: url('{% static 'base/images/img5.jpg' %}')">
+                        <div class="gallery-caption">
+                            <h3>Annual Conference</h3>
+                            <p>2023 Members Summit</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" style="background-image: url('{% static 'base/images/img3.jpg' %}')">
+                        <div class="gallery-caption">
+                            <h3>Community Service</h3>
+                            <p>Local outreach program</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" style="background-image: url('{% static 'base/images/img4.jpg' %}')">
+                        <div class="gallery-caption">
+                            <h3>Award Ceremony</h3>
+                            <p>Recognizing excellence</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" style="background-image: url('{% static 'images/gallery/event4.jpg' %}')">
+                        <div class="gallery-caption">
+                            <h3>Workshop</h3>
+                            <p>Skill development session</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" style="background-image: url('{% static 'images/gallery/event5.jpg' %}')">
+                        <div class="gallery-caption">
+                            <h3>Networking</h3>
+                            <p>Members social event</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="#full-gallery" class="btn btn-outline-dark-blue">
+                        <i class="bi bi-grid-3x3-gap me-2"></i> View Full Gallery
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Color Scheme */
+        :root {
+            --dark-blue: #3D405B;
+            --light-gray: #F8F9FA;
+            --soft-blue: rgba(61, 64, 91, 0.1);
+            --accent: #81B29A;
+            --accent-light: rgba(129, 178, 154, 0.1);
+            --white: #FFFFFF;
+        }
+        
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-blue);
+        }
+        
+        /* Utility Classes */
+        .bg-dark-blue { background-color: var(--dark-blue); }
+        .bg-light-gray { background-color: var(--light-gray); }
+        .bg-soft-blue { background-color: var(--soft-blue); }
+        .bg-accent { background-color: var(--accent); }
+        .bg-accent-light { background-color: var(--accent-light); }
+        
+        .text-dark-blue { color: var(--dark-blue); }
+        .text-accent { color: var(--accent); }
+        
+        .btn-dark-blue {
+            background-color: var(--dark-blue);
+            color: white;
+            border-color: var(--dark-blue);
+        }
+        .btn-dark-blue:hover {
+            background-color: #2b2d42;
+            border-color: #2b2d42;
+            color: white;
+        }
+        .btn-outline-dark-blue {
+            color: var(--dark-blue);
+            border-color: var(--dark-blue);
+        }
+        .btn-outline-dark-blue:hover {
+            background-color: var(--dark-blue);
+            color: white;
+        }
+        
+        .py-6 { padding-top: 5rem; padding-bottom: 5rem; }
+        
+        /* Professional Hero Section */
+        .professional-hero {
+            padding: 6rem 0;
+        }
+        .hero-content {
+            max-width: 600px;
+        }
+        .rotating-text {
+            font-size: 1.5rem;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .cd-headline {
+            display: inline-block;
+            position: relative;
+            margin-left: 0.25rem;
+        }
+        .cd-words-wrapper {
+            display: inline-block;
+            position: relative;
+            text-align: left;
+        }
+        .cd-words-wrapper b {
+            display: inline-block;
+            position: absolute;
+            white-space: nowrap;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+        .cd-words-wrapper b.is-visible {
+            position: relative;
+            opacity: 1;
+        }
+        .cd-headline.text-accent {
+            color: var(--accent);
+        }
+        
+        .hero-image-container {
+            position: relative;
+        }
+        .main-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .image-badge {
+            position: absolute;
+            bottom: -1.5rem;
+            right: -1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 180px;
+        }
+        .badge-icon {
+            font-size: 2rem;
+        }
+        .badge-number {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        .badge-text {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        
+        /* Vision & Mission Section */
+        .vision-mission-section .lead {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        .vision-card, .mission-card {
+            transition: all 0.3s ease;
+        }
+        .vision-card:hover, .mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Fee Types Styles */
+        .fee-types {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        .fee-type-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .fee-type-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Professional Gallery */
+        .professional-gallery {
+            position: relative;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 250px);
+            gap: 20px;
+        }
+        .gallery-item {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .gallery-item.main-item {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(61, 64, 91, 0.8));
+            color: white;
+            padding: 2rem 1.5rem 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .gallery-item:hover .gallery-caption {
+            opacity: 1;
+        }
+        .gallery-caption h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .gallery-caption p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .professional-hero {
+                padding: 4rem 0;
+            }
+            .gallery-grid {
+                grid-template-rows: repeat(3, 200px);
+            }
+            .gallery-item.main-item {
+                grid-column: span 3;
+                grid-row: span 1;
+            }
+            .vision-card, .mission-card {
+                padding: 3rem !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .display-4 {
+                font-size: 2.5rem;
+            }
+            .rotating-text {
+                font-size: 1.25rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .cd-headline {
+                margin-left: 0;
+                margin-top: 0.25rem;
+            }
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(5, 200px);
+            }
+            .gallery-item.main-item {
+                grid-column: span 1;
+            }
+            .vision-card, .mission-card {
+                padding: 2rem !important;
+            }
+        }
+    </style>
+
+    <script>
+        // Rotating Text Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Rotating Words
+            const words = document.querySelectorAll('.cd-words-wrapper b');
+            let wordIndex = 0;
+            
+            function rotateWords() {
+                const currentWord = words[wordIndex];
+                const nextWord = words[(wordIndex + 1) % words.length];
+                
+                currentWord.classList.remove('is-visible');
+                currentWord.classList.add('is-hidden');
+                
+                nextWord.classList.remove('is-hidden');
+                nextWord.classList.add('is-visible');
+                
+                wordIndex = (wordIndex + 1) % words.length;
+                
+                setTimeout(rotateWords, 2000);
+            }
+            
+            // Initialize first word as visible
+            words[0].classList.add('is-visible');
+            for (let i = 1; i < words.length; i++) {
+                words[i].classList.add('is-hidden');
+            }
+            
+            setTimeout(rotateWords, 2000);
+            
+            // Statistics Counter
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            const animateValue = (obj, start, end, duration) => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+                    obj.textContent = value.toLocaleString();
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const element = entry.target;
+                        const target = parseInt(element.getAttribute('data-count'));
+                        animateValue(element, 0, target, 1500);
+                        observer.unobserve(element);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            statNumbers.forEach(number => {
+                observer.observe(number);
+            });
+            
+            // Gallery Item Hover Effect
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            galleryItems.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.style.transform = 'translateY(-10px)';
+                    item.style.boxShadow = '0 15px 40px rgba(0,0,0,0.15)';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.transform = 'translateY(-5px)';
+                    item.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base/base.html' %}
+{% block content %}
+
+<div class="container mt-5" style="padding: 50px 0 0 0;">
+    <h2 class="text-center">💬 Edit Comment</h2>
+    <div class="card p-4 shadow-sm">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Comment</label>
+                <input type="text" name="message" value="{{ comment.message }}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

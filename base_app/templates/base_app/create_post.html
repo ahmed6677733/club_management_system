@@ -1,0 +1,24 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+    <div class="container mt-4" style="padding: 50px 0 0 0;">
+        <h2 class="text-center mb-4">Create a New Post</h2>
+
+        <div class="post-box">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="body" class="form-label">Body</label>
+                    <textarea class="form-control" id="body" name="body" rows="4" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Post</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
