@@ -1,0 +1,198 @@
+{% extends 'base/base.html' %}
+{% block content %}
+
+<br>
+<br>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-file-invoice me-2"></i>Payment Report
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row g-4">
+                            <!-- Start Date Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="date" 
+                                           name="start_date" 
+                                           id="id_start_date" 
+                                           class="form-control{% if form.start_date.errors %} is-invalid{% endif %}" 
+                                           value="{{ form.start_date.value|default_if_none:'' }}"
+                                           required
+                                           placeholder="Start Date">
+                                    <label for="id_start_date" class="form-label">
+                                        Start Date <span class="text-danger">*</span>
+                                    </label>
+                                    {% for error in form.start_date.errors %}
+                                    <div class="invalid-feedback">
+                                        <i class="fas fa-exclamation-circle me-1"></i> {{ error }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- End Date Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="date" 
+                                           name="end_date" 
+                                           id="id_end_date" 
+                                           class="form-control{% if form.end_date.errors %} is-invalid{% endif %}" 
+                                           value="{{ form.end_date.value|default_if_none:'' }}"
+                                           required
+                                           placeholder="End Date">
+                                    <label for="id_end_date" class="form-label">
+                                        End Date <span class="text-danger">*</span>
+                                    </label>
+                                    {% for error in form.end_date.errors %}
+                                    <div class="invalid-feedback">
+                                        <i class="fas fa-exclamation-circle me-1"></i> {{ error }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-5 pt-2 border-top">
+                            <button type="reset" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-undo me-2"></i>Clear
+                            </button>
+                            <div>
+                                <a href="" class="btn btn-outline-danger me-2 px-4" onclick="event.preventDefault(); window.history.back();">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-file-export me-2"></i>Generate
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .form-control, .form-select {
+        height: calc(3em + 0.75rem + 2px);
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .form-floating>label {
+        padding: 1rem 1rem;
+    }
+    
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    
+    .btn-primary {
+        background-color: #0d6efd;
+        border: none;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+    }
+    
+    .btn-outline-secondary, .btn-outline-danger {
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover, .btn-outline-danger:hover {
+        transform: translateY(-2px);
+    }
+    
+    .invalid-feedback {
+        font-size: 0.8em;
+        padding-left: 1rem;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+        background-image: none;
+        padding-right: 1rem;
+    }
+    
+    .alert {
+        border-radius: 0.5rem;
+    }
+    
+    .border-top {
+        border-top: 1px solid #f0f0f0 !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+    
+    // Add today's date as max for both fields
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('id_start_date').max = today;
+    document.getElementById('id_end_date').max = today;
+    
+    // Set start date to 30 days before today by default if empty
+    if (!document.getElementById('id_start_date').value) {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        document.getElementById('id_start_date').value = thirtyDaysAgo.toISOString().split('T')[0];
+    }
+    
+    // Set end date to today by default if empty
+    if (!document.getElementById('id_end_date').value) {
+        document.getElementById('id_end_date').value = today;
+    }
+});
+</script>
+{% endblock %}

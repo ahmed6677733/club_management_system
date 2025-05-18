@@ -1,0 +1,304 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<br>
+<br>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-gradient text-white">
+            <h4 class="mb-0">Membership Payment</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Left Side: Membership and Payment Info -->
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Membership Type</label>
+                            <input type="text" class="form-control border-0 shadow-sm" value="{{ membership_type.name }}" readonly>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Membership Fee Type</label>
+                            <select id="fee_structure" name="fee_structure" class="form-select shadow-sm" required>
+                                {% for fee in fee_structures %}
+                                    <option value="{{ fee.id }}" 
+                                        data-amount="{{ fee.amount }}" 
+                                        data-counter="{{ fee.counter }}" 
+                                        data-is_one_time="{{ fee.is_one_time }}"{% if fee.is_one_time and fee.id in paid_fee_ids %} disabled {% endif %}>
+                                        {{ fee.fee_name.name }} - {{ fee.amount }} BDT
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Amount (BDT)</label>
+                            <input type="text" id="amount" name="amount" class="form-control border-0 shadow-sm" readonly>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Payment Method</label>
+                            <select name="payment_method" id="payment_method" class="form-select shadow-sm" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="BANK_TRANSFER">Bank Transfer</option>
+                                <option value="MOBILE_BANKING">Mobile Banking</option>
+                            </select>
+                        </div>
+
+                        <!-- Bank Transfer Section (Initially Hidden) -->
+                        <div id="bank-details-section" style="display: none;">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Select Bank</label>
+                                <select id="bank_details" name="bank_details" class="form-select shadow-sm">
+                                    <option value="">Select Bank</option>
+                                    {% for bank in bank_details %}
+                                        <option value="{{ bank.id }}" 
+                                            data-bank-name="{{ bank.bank_name }}"
+                                            data-branch-name="{{ bank.branch_name }}"
+                                            data-account-type="{{ bank.account_type }}"
+                                            data-account-number="{{ bank.account_number }}"
+                                            data-routing-number="{{ bank.routing_number }}"
+                                            data-contact-number="{{ bank.contact_number }}"
+                                            data-email-address="{{ bank.email_address }}"
+                                            >
+                                            {{ bank.bank_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div id="bank-info" class="mb-4 p-3 bg-light rounded" style="display: none;">
+                                <h5>Bank Transfer Instructions:</h5>
+                                <p><strong>Bank Name:</strong> <span id="bank-name"></span></p>
+                                <p><strong>Branch Name:</strong> <span id="branch-name"></span></p>
+                                <p><strong>Account Type:</strong> <span id="account-type"></span></p>
+                                <p><strong>Account Number:</strong> <span id="account-number"></span></p>
+                                <p><strong>Routing Number:</strong> <span id="routing-number"></span></p>
+                                <p><strong>Contact Number:</strong> <span id="contact-number"></span></p>
+                                <p><strong>Email Address:</strong> <span id="email-address"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Banking Section (Initially Hidden) -->
+                        <div id="mobile-banking-section" style="display: none;">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Select Mobile Banking</label>
+                                <select id="mobile_banking_details" name="mobile_banking_details" class="form-select shadow-sm">
+                                    <option value="">Select Mobile Banking</option>
+                                    {% for mb in mobile_banking_details %}
+                                        <option value="{{ mb.id }}"
+                                            data-banking-name="{{ mb.banking_name }}"
+                                            data-mobile-number="{{ mb.mobile_number }}"
+                                            data-merchant-account="{{ mb.merchant_account }}"
+                                            data-instructions="{{ mb.instructions }}">
+                                            {{ mb.banking_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div id="mobile-banking-info" class="mb-4 p-3 bg-light rounded" style="display: none;">
+                                <h5>Mobile Banking Instructions:</h5>
+                                <p><strong>Provider:</strong> <span id="mobile-banking-name"></span></p>
+                                <p><strong>Mobile Number:</strong> <span id="mobile-number"></span></p>
+                                <p><strong>Merchant Account:</strong> <span id="merchant-account"></span></p>
+                                <p><strong>Instructions:</strong> <span id="instructions"></span></p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Transaction ID</label>
+                            <input type="text" name="transaction_id" class="form-control border-0 shadow-sm" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Payment Notes</label>
+                            <textarea name="payment_notes" class="form-control border-0 shadow-sm" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Upload Proof of Payment</label>
+                            <input type="file" name="proof_of_payment" class="form-control border-0 shadow-sm">
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Month Selection -->
+                    <div class="col-md-6">
+                        <div id="month-section" class="border p-3 rounded-3 shadow-sm">
+                            <label class="form-label fw-bold">Select Payment Months</label>
+                            <div class="overflow-auto" style="max-height: 300px;">
+                                {% for month in next_12_months %}
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input month-checkbox" name="payment_months" value="{{ month }}" 
+                                            {% if month in paid_months %} disabled {% endif %}>
+                                        <label class="form-check-label {% if month in paid_months %} text-danger {% endif %}">
+                                            {{ month }} {% if month in paid_months %} - Paid {% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Total Amount Section -->
+                        <div class="mb-4 mt-3">
+                            <label class="form-label fw-bold">Total Amount (BDT)</label>
+                            <input type="text" id="total_amount" class="form-control border-0 shadow-sm" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <button type="submit" class="btn btn-success shadow">Submit Payment</button>
+                    <a href="{% url 'view_profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // DOM Elements
+        const feeSelect = document.getElementById("fee_structure");
+        const amountInput = document.getElementById("amount");
+        const totalAmountInput = document.getElementById("total_amount");
+        const monthCheckboxes = document.querySelectorAll(".month-checkbox");
+        const monthSection = document.getElementById("month-section");
+        const paymentMethodSelect = document.getElementById("payment_method");
+        const bankDetailsSection = document.getElementById("bank-details-section");
+        const mobileBankingSection = document.getElementById("mobile-banking-section");
+        const bankSelect = document.getElementById("bank_details");
+        const bankInfoSection = document.getElementById("bank-info");
+        const mobileBankingSelect = document.getElementById("mobile_banking_details");
+        const mobileBankingInfoSection = document.getElementById("mobile-banking-info");
+    
+        // Update fee and month selection
+        function updateSelection() {
+            const selectedOption = feeSelect.options[feeSelect.selectedIndex];
+            const amount = parseFloat(selectedOption.getAttribute("data-amount"));
+            const counter = parseInt(selectedOption.getAttribute("data-counter"));
+            const isOneTime = selectedOption.getAttribute("data-is_one_time") === "True";
+    
+            // Always set the base amount
+            amountInput.value = amount.toFixed(2);
+            
+            // For one-time payments, set total amount equal to base amount
+            if (isOneTime) {
+                totalAmountInput.value = amount.toFixed(2);
+                monthSection.style.display = 'none';
+            } else {
+                // For recurring payments, calculate based on selected months
+                monthSection.style.display = 'block';
+                const perMonthAmount = amount / counter;
+                
+                // Auto-select months up to the counter limit
+                let selectedCount = 0;
+                monthCheckboxes.forEach((cb) => {
+                    const isPaid = cb.disabled;
+                    
+                    if (!isPaid && selectedCount < counter) {
+                        cb.checked = true;
+                        selectedCount++;
+                    } else {
+                        cb.checked = false;
+                    }
+                });
+                
+                // Calculate initial total for recurring payments
+                calculateTotal();
+            }
+        }
+    
+        // Calculate total amount based on selected months
+        function calculateTotal() {
+            const selectedOption = feeSelect.options[feeSelect.selectedIndex];
+            const amount = parseFloat(selectedOption.getAttribute("data-amount"));
+            const counter = parseInt(selectedOption.getAttribute("data-counter"));
+            const isOneTime = selectedOption.getAttribute("data-is_one_time") === "True";
+            
+            if (isOneTime) {
+                // For one-time payments, total is always the full amount
+                totalAmountInput.value = amount.toFixed(2);
+                amountInput.value = amount.toFixed(2);
+            } else {
+                // For recurring payments, calculate based on selected months
+                const perMonthAmount = amount / counter;
+                let selectedCount = 0;
+                
+                monthCheckboxes.forEach((cb) => {
+                    if (cb.checked && !cb.disabled) selectedCount++;
+                });
+                
+                const totalAmount = perMonthAmount * selectedCount;
+                totalAmountInput.value = totalAmount.toFixed(2);
+                amountInput.value = totalAmount.toFixed(2);
+            }
+        }
+    
+        // Toggle payment method sections
+        function togglePaymentDetails() {
+            const method = paymentMethodSelect.value;
+            
+            bankDetailsSection.style.display = method === 'BANK_TRANSFER' ? 'block' : 'none';
+            mobileBankingSection.style.display = method === 'MOBILE_BANKING' ? 'block' : 'none';
+            
+            // Reset details when switching methods
+            if (method !== 'BANK_TRANSFER') {
+                bankSelect.value = '';
+                bankInfoSection.style.display = 'none';
+            }
+            if (method !== 'MOBILE_BANKING') {
+                mobileBankingSelect.value = '';
+                mobileBankingInfoSection.style.display = 'none';
+            }
+        }
+    
+        // Show bank details when bank is selected
+        bankSelect.addEventListener("change", function() {
+            const selectedBank = this.options[this.selectedIndex];
+            if (selectedBank.value) {
+                document.getElementById("bank-name").textContent = selectedBank.dataset.bankName;
+                document.getElementById("branch-name").textContent = selectedBank.dataset.branchName;
+                document.getElementById("account-type").textContent = selectedBank.dataset.accountType;
+                document.getElementById("account-number").textContent = selectedBank.dataset.accountNumber;
+                document.getElementById("routing-number").textContent = selectedBank.dataset.routingNumber;
+                document.getElementById("contact-number").textContent = selectedBank.dataset.contactNumber;
+                document.getElementById("email-address").textContent = selectedBank.dataset.emailAddress;
+
+                bankInfoSection.style.display = 'block';
+            } else {
+                bankInfoSection.style.display = 'none';
+            }
+        });
+    
+        // Show mobile banking details when provider is selected
+        mobileBankingSelect.addEventListener("change", function() {
+            const selectedMB = this.options[this.selectedIndex];
+            if (selectedMB.value) {
+                document.getElementById("mobile-banking-name").textContent = selectedMB.dataset.bankingName;
+                document.getElementById("mobile-number").textContent = selectedMB.dataset.mobileNumber;
+                document.getElementById("merchant-account").textContent = selectedMB.dataset.merchantAccount;
+                document.getElementById("instructions").textContent = selectedMB.dataset.instructions;
+                mobileBankingInfoSection.style.display = 'block';
+            } else {
+                mobileBankingInfoSection.style.display = 'none';
+            }
+        });
+    
+        // Add event listeners to month checkboxes
+        monthCheckboxes.forEach((cb) => {
+            cb.addEventListener("change", calculateTotal);
+        });
+    
+        // Event Listeners
+        feeSelect.addEventListener("change", updateSelection);
+        paymentMethodSelect.addEventListener("change", togglePaymentDetails);
+    
+        // Initialize
+        updateSelection();
+        togglePaymentDetails();
+    });
+    </script>
+{% endblock %}

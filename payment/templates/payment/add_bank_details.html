@@ -1,0 +1,57 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Add Multiple Bank Details</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="m-0">Bank Details</h4>
+            </div>
+            <div class="card-body">
+                {{ bank_formset.management_form }}
+                {% for form in bank_formset %}
+                    <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 15px;">
+                        <div style="display: flex; flex-wrap: wrap;">
+                            <div style="flex: 1 1 45%; margin-right: 10px;">
+                                <label for="{{ form.bank_name.id_for_label }}">Bank Name</label>
+                                {{ form.bank_name }}
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="{{ form.branch_name.id_for_label }}">Branch Name</label>
+                                {{ form.branch_name }}
+                            </div>
+                            <div style="flex: 1 1 45%; margin-right: 10px;">
+                                <label for="{{ form.account_type.id_for_label }}">Account Type</label>
+                                {{ form.account_type }}
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="{{ form.account_number.id_for_label }}">Account Number</label>
+                                {{ form.account_number }}
+                            </div>
+                            <div style="flex: 1 1 45%; margin-right: 10px;">
+                                <label for="{{ form.routing_number.id_for_label }}">Routing Number</label>
+                                {{ form.routing_number }}
+                            </div>
+                            <div style="flex: 1 1 45%;">
+                                <label for="{{ form.contact_number.id_for_label }}">Contact Number</label>
+                                {{ form.contact_number }}
+                            </div>
+                            <div style="flex: 1 1 45%; margin-right: 10px;">
+                                <label for="{{ form.email_address.id_for_label }}">Email Address</label>
+                                {{ form.email_address }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card-footer text-center">
+                <button type="submit" style="padding: 10px 20px; background-color: #28a745; border: none; color: white;">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

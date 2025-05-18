@@ -1,0 +1,339 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Committee Donation</h2>
+                <p class="text-muted">Support our cause with your contribution</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="donationForm" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Donation Type -->
+                <div class="card mb-3 border-light shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Donation Information</h5>
+                        <div class="mb-3">
+                            <label for="id_donation_type" class="form-label">Donation Type*</label>
+                            {{ form.donation_type }}
+                            <div class="invalid-feedback">Please select a donation type</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Donor Details -->
+                <div class="card mb-3 border-light shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Your Details</h5>
+                        {% if user_authenticated %}
+                        <div class="alert alert-light mb-3">
+                            You're donating as <strong>{{ request.user.full_name }}</strong>
+                        </div>
+                        <div style="display:none;">
+                            {{ form.name }}
+                            {{ form.email }}
+                            {{ form.phone }}
+                            {{ form.address }}
+                        </div>
+                        {% else %}
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="id_name" class="form-label">Name*</label>
+                                {{ form.name }}
+                                <div class="invalid-feedback">Please provide your name</div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="id_email" class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="id_address" class="form-label">Address</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Donation Details -->
+                <div class="card mb-3 border-light shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Donation Details</h5>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2" id="amountField" style="display:none;">
+                                <label for="id_amount" class="form-label">Amount*</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.amount }}
+                                </div>
+                                <div class="invalid-feedback">Please provide the amount</div>
+                            </div>
+                            <div class="col-md-6 mb-2" id="quantityFields" style="display:none;">
+                                <label for="id_quantity" class="form-label">Quantity*</label>
+                                {{ form.quantity }}
+                                <div class="invalid-feedback">Please provide the quantity</div>
+                            </div>
+                            <div class="col-md-6 mb-2" id="quantityUnitField" style="display:none;">
+                                <label for="id_quantity_unit" class="form-label">Unit*</label>
+                                {{ form.quantity_unit }}
+                                <div class="invalid-feedback">Please provide the unit</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="card mb-3 border-light shadow-sm" id="paymentSection" style="display:none;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Payment Information</h5>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2" id="paymentMethodField" style="display:none;">
+                                <label for="id_payment_method" class="form-label">Payment Method*</label>
+                                {{ form.payment_method }}
+                                <div class="invalid-feedback">Please select a payment method</div>
+                            </div>
+                            <div class="col-md-6 mb-2" id="bankDetailField" style="display:none;">
+                                <label for="id_bank_detail" class="form-label">Bank Details*</label>
+                                {{ form.bank_detail }}
+                                <div class="invalid-feedback">Please select bank details</div>
+                            </div>
+                            <div class="col-md-6 mb-2" id="mobileBankingField" style="display:none;">
+                                <label for="id_mobile_banking_detail" class="form-label">Mobile Banking*</label>
+                                {{ form.mobile_banking_detail }}
+                                <div class="invalid-feedback">Please select mobile banking details</div>
+                            </div>
+                            <div class="col-md-6 mb-2" id="transactionIdField" style="display:none;">
+                                <label for="id_transaction_id" class="form-label">Transaction ID*</label>
+                                {{ form.transaction_id }}
+                                <div class="invalid-feedback">Please provide transaction ID</div>
+                            </div>
+                            <div class="col-12 mb-2" id="proofOfPaymentField" style="display:none;">
+                                <label for="id_proof_of_payment" class="form-label">Proof of Payment*</label>
+                                {{ form.proof_of_payment }}
+                                <div class="invalid-feedback">Please upload proof of payment</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="card mb-4 border-light shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Additional Information</h5>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="id_donation_date" class="form-label">Donation Date*</label>
+                                {{ form.donation_date }}
+                                <div class="invalid-feedback">Please select a donation date</div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <label for="id_donation_notes" class="form-label">Notes</label>
+                                {{ form.donattion_notes }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary py-2">
+                        Submit Donation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 8px;
+    }
+    .form-control, .form-select {
+        border-radius: 6px;
+        padding: 8px 12px;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    }
+    .input-group-text {
+        border-radius: 6px 0 0 6px;
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+    .loading-spinner {
+        display: none;
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeForm();
+    
+    document.getElementById('id_donation_type')?.addEventListener('change', function() {
+        updateDonationFields(this.value);
+    });
+    
+    document.getElementById('id_payment_method')?.addEventListener('change', function() {
+        updatePaymentFields(this.value);
+    });
+    
+    setupFormValidation();
+});
+
+function initializeForm() {
+    const donationTypeSelect = document.getElementById('id_donation_type');
+    if (donationTypeSelect && donationTypeSelect.value) {
+        updateDonationFields(donationTypeSelect.value);
+    } else {
+        ['amountField', 'quantityFields', 'quantityUnitField', 
+         'paymentSection', 'paymentMethodField', 'bankDetailField',
+         'mobileBankingField', 'transactionIdField', 'proofOfPaymentField'].forEach(hideElement);
+    }
+    
+    const paymentMethodSelect = document.getElementById('id_payment_method');
+    if (paymentMethodSelect && paymentMethodSelect.value && paymentMethodSelect.value !== '----') {
+        updatePaymentFields(paymentMethodSelect.value);
+    }
+}
+
+function updateDonationFields(donationTypeId) {
+    if (!donationTypeId) {
+        ['amountField', 'quantityFields', 'quantityUnitField', 
+         'paymentSection', 'paymentMethodField', 'bankDetailField',
+         'mobileBankingField', 'transactionIdField', 'proofOfPaymentField'].forEach(hideElement);
+        return;
+    }
+    
+    const spinner = document.createElement('span');
+    spinner.className = 'loading-spinner spinner-border spinner-border-sm';
+    const donationTypeContainer = document.getElementById('id_donation_type').parentNode;
+    donationTypeContainer.appendChild(spinner);
+    spinner.style.display = 'inline-block';
+    
+    fetch(`/payment/donations/get-donation-type-fields/?type_id=${donationTypeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            
+            toggleElement('amountField', data.amount);
+            toggleElement('quantityFields', data.quantity);
+            toggleElement('quantityUnitField', data.quantity_unit);
+            toggleElement('paymentSection', data.show_payment);
+            toggleElement('paymentMethodField', data.show_payment_method);
+            toggleElement('bankDetailField', data.show_bank_detail && data.show_payment);
+            toggleElement('mobileBankingField', data.show_mobile_banking && data.show_payment);
+            toggleElement('transactionIdField', data.show_transaction_id && data.show_payment);
+            toggleElement('proofOfPaymentField', data.show_proof_of_payment && data.show_payment);
+            
+            // Clear values if fields are hidden
+            if (!data.amount) document.getElementById('id_amount').value = '';
+            if (!data.quantity) document.getElementById('id_quantity').value = '';
+            if (!data.quantity_unit) document.getElementById('id_quantity_unit').value = '';
+            if (!data.show_payment_method) document.getElementById('id_payment_method').value = '----';
+            if (!data.show_bank_detail) document.getElementById('id_bank_detail').value = '';
+            if (!data.show_mobile_banking) document.getElementById('id_mobile_banking_detail').value = '';
+            if (!data.show_transaction_id) document.getElementById('id_transaction_id').value = '';
+            if (!data.show_proof_of_payment) document.getElementById('id_proof_of_payment').value = '';
+        })
+        .catch(error => console.error('Error:', error))
+        .finally(() => {
+            spinner.style.display = 'none';
+            donationTypeContainer.removeChild(spinner);
+        });
+}
+
+function updatePaymentFields(paymentMethod) {
+    if (!paymentMethod || paymentMethod === '----') {
+        ['bankDetailField', 'mobileBankingField'].forEach(hideElement);
+        return;
+    }
+    
+    if (paymentMethod === 'BANK_TRANSFER') {
+        showElement('bankDetailField');
+        hideElement('mobileBankingField');
+        document.getElementById('id_mobile_banking_detail').value = '';
+    } else if (paymentMethod === 'MOBILE_BANKING') {
+        showElement('mobileBankingField');
+        hideElement('bankDetailField');
+        document.getElementById('id_bank_detail').value = '';
+    } else {
+        ['bankDetailField', 'mobileBankingField'].forEach(hideElement);
+        document.getElementById('id_bank_detail').value = '';
+        document.getElementById('id_mobile_banking_detail').value = '';
+    }
+}
+
+function showElement(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'block';
+        const inputs = element.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.hasAttribute('data-required')) {
+                input.required = true;
+            }
+        });
+    }
+}
+
+function hideElement(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'none';
+        const inputs = element.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.required = false;
+            input.setCustomValidity('');
+        });
+    }
+}
+
+function toggleElement(elementId, shouldShow) {
+    if (shouldShow) showElement(elementId);
+    else hideElement(elementId);
+}
+
+function setupFormValidation() {
+    const form = document.getElementById('donationForm');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(event) {
+        const donationTypeSelect = document.getElementById('id_donation_type');
+        const paymentMethodSelect = document.getElementById('id_payment_method');
+        
+        if (donationTypeSelect?.value) {
+            updateDonationFields(donationTypeSelect.value);
+        }
+        
+        if (paymentMethodSelect?.value) {
+            updatePaymentFields(paymentMethodSelect.value);
+        }
+        
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+}
+</script>
+{% endblock %}
