@@ -1,0 +1,36 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Role Change Requests</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Requested Role</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in pending_requests %}
+                <tr>
+                    <td>{{ request.user.username }}</td>
+                    <td>{{ request.get_new_role_display }}</td>
+                    <td>{{ request.get_status_display }}</td>
+                    <td>
+                        <a href="{% url 'approve_role_change' request.id %}" class="btn btn-success btn-sm">Approve</a>
+                        <a href="{% url 'reject_role_change' request.id %}" class="btn btn-danger btn-sm">Reject</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No pending role change requests</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

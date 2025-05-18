@@ -1,0 +1,209 @@
+{% extends "dashboard/main.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card profile-card">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Profile Information</h3>
+                <span class="badge bg-light text-primary fs-6">{{ profile.user.role|upper }}</span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <!-- Profile Picture Section -->
+                <div class="col-md-4 border-end">
+                    <div class="text-center mb-4">
+                        <div class="avatar-upload">
+                            <div class="avatar-preview">
+                                <img src="{% if profile.user.profile_pic %}{{ profile.user.profile_pic.url }}{% else %}{% static 'default/profile-default.jpg' %}{% endif %}"
+                                     class="img-thumbnail rounded-circle shadow" alt="Profile Picture" width="180">
+                            </div>
+                        </div>
+                        <h3 class="mt-3 mb-1">{{ profile.user.full_name }}</h3>
+                        <p class="text-muted mb-3">{{ profile.user.email }}</p>
+                        
+
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="profile-stats mt-4">
+                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Status</span>
+                            <span class="fw-bold">
+                                {% if profile.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Member Since</span>
+                            <span class="fw-bold">{{ profile.joining_date|date:"M Y" }}</span>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Blood Group</span>
+                            <span class="fw-bold badge bg-danger">{{ profile.get_blood_group_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Details Section -->
+                <div class="col-md-8">
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <div class="info-section mb-4">
+                                <h5 class="section-title">
+                                    <i class="fa fa-user-circle me-2 text-primary"></i>Personal Information
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <span class="text-muted">Username:</span>
+                                        <span class="fw-bold">{{ profile.user.username }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">Phone:</span>
+                                        <span class="fw-bold">{{ profile.user.phone_number|default:"N/A" }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">Gender:</span>
+                                        <span class="fw-bold">{{ profile.get_gender_display }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">Date of Birth:</span>
+                                        <span class="fw-bold">{{ profile.date_of_birth|date:"d M Y" }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">NID:</span>
+                                        <span class="fw-bold">{{ profile.nid|default:"N/A" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Family Information -->
+                            <div class="info-section mb-4">
+                                <h5 class="section-title">
+                                    <i class="fa fa-users me-2 text-primary"></i>Family Information
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <span class="text-muted">Father's Name:</span>
+                                        <span class="fw-bold">{{ profile.father_name|default:"N/A" }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">Mother's Name:</span>
+                                        <span class="fw-bold">{{ profile.mother_name|default:"N/A" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Address Information -->
+                        <div class="col-md-6">
+                            <div class="info-section mb-4">
+                                <h5 class="section-title">
+                                    <i class="fa fa-map-marker-alt me-2 text-primary"></i>Address Information
+                                </h5>
+                                <div class="mb-3">
+                                    <h6 class="sub-section-title">Present Address</h6>
+                                    <p class="address-text">{{ profile.present_address|default:"N/A"|linebreaks }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h6 class="sub-section-title">Permanent Address</h6>
+                                    <p class="address-text">{{ profile.permanent_address|default:"N/A"|linebreaks }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Membership Information -->
+                            <div class="info-section">
+                                <h5 class="section-title">
+                                    <i class="fa fa-id-card me-2 text-primary"></i>Membership
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <span class="text-muted">Membership ID:</span>
+                                        <span class="fw-bold">{{ profile.membership_id|default:"N/A" }}</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <span class="text-muted">Joining Date:</span>
+                                        <span class="fw-bold">{{ profile.joining_date|date:"d M Y" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer bg-light">
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-primary me-2">
+                    <i class="fa fa-edit me-1"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .avatar-preview {
+        position: relative;
+        margin: 0 auto;
+        width: 180px;
+        height: 180px;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+        color: #495057;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed #dee2e6;
+        margin-bottom: 1rem;
+    }
+    
+    .sub-section-title {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .address-text {
+        font-size: 0.9rem;
+        color: #343a40;
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 5px;
+    }
+    
+    .info-section {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .profile-stats {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}

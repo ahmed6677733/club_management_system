@@ -1,0 +1,214 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<br>
+
+<div class="container">
+    <!-- Club Info Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            {% if club %}
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        <img src="{{ club.club_logo.url }}" class="img-fluid rounded-circle" alt="Club Logo" style="width: 200px; height: 200px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-bold">Club Name: {{ club.club_name }}</h5>
+                        <p><strong>Description:</strong> {{ club.description }}</p>
+                        <p><strong>Established on:</strong> {{ club.club_est }}</p>
+                        <p><strong>Contact Name:</strong> {{ club.contact_name }}</p>
+                        <p><strong>Email:</strong> {{ club.contact_email }}</p>
+                        <p><strong>Phone:</strong> {{ club.contact_phone }}</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'edit_club' %}" class="btn btn-warning btn-sm">Edit Club Info</a>
+                </div>
+            {% else %}
+                <p class="text-center">No club registered yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Organization Registration Info Table -->
+    <div class="card shadow-sm">
+        <div class="card-header text-center">
+            <h5>Organization Registration Info</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="">
+                    <tr>
+                        <th>SL</th>
+                        <th>Organization Name</th>
+                        <th>License Number</th>
+                        <th>Registration Status</th>
+                        <th>License Expiry Date</th>
+                        <th>License File</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for org_info in org_info_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ org_info.organization_name }}</td>
+                            <td>{{ org_info.license_number }}</td>
+                            <td>
+                                {% if org_info.registration_status == "pending" %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif org_info.registration_status == "approved" %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ org_info.license_expiry_date }}</td>
+                            <td>
+                                {% if org_info.upload_file %}
+                                    <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#fileModal{{ org_info.id }}">View File</a>
+                                {% else %}
+                                    No file uploaded
+                                {% endif %}
+                            </td>
+                            <td><a href="" class="btn btn-warning btn-sm">View/Edit</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No organization registration info available.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- "Add Information" Button -->
+             <br>
+            <div class="">
+                <button id="show-form-btn" class="btn btn-primary">Add Information</button>
+            </div>
+
+            <!-- Formset for Adding Organization Registration Info -->
+            <div id="form-container" style="display: none;">
+                <form method="POST" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+                    <div class="formset">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                            <div class="form-container border rounded p-3 mb-3 shadow-sm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.registration_number.label }}</label>
+                                            {{ form.registration_number }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.organization_name.label }}</label>
+                                            {{ form.organization_name }}
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.licence_name.label }}</label>
+                                            {{ form.licence_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.registration_status.label }}</label>
+                                            {{ form.registration_status }}
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.license_number.label }}</label>
+                                            {{ form.license_number }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.license_expiry_date.label }}</label>
+                                            {{ form.license_expiry_date }}
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.upload_file.label }}</label>
+                                            {{ form.upload_file }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.registration_notes.label }}</label>
+                                            {{ form.registration_notes }}
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <button type="button" class="btn btn-danger remove-form">Remove</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                
+                    <div class="d-flex justify-content-between">
+                        <button type="button" id="add-more" class="btn btn-outline-primary">Add More</button>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const formContainer = document.getElementById("form-container");
+        const showFormBtn = document.getElementById("show-form-btn");
+        const addMoreBtn = document.getElementById("add-more");
+        const submitBtn = document.querySelector("button[type='submit']");
+
+        // Initially hide add-more and submit buttons
+        addMoreBtn.style.display = "none";
+        submitBtn.style.display = "none";
+
+        showFormBtn.addEventListener("click", function () {
+            formContainer.style.display = "block";
+            showFormBtn.style.display = "none";
+            addMoreBtn.style.display = "inline-block";
+            submitBtn.style.display = "inline-block";
+        });
+
+        document.getElementById("add-more").addEventListener("click", function () {
+            var totalForms = document.getElementById("id_form-TOTAL_FORMS");
+            var currentCount = parseInt(totalForms.value);
+            var newForm = document.querySelector(".form-container").cloneNode(true);
+
+            newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${currentCount}-`);
+            newForm.querySelector(".remove-form").addEventListener("click", function () {
+                newForm.remove();
+            });
+
+            document.querySelector(".formset").appendChild(newForm);
+            totalForms.value = currentCount + 1;
+        });
+
+        document.querySelectorAll(".remove-form").forEach(function (button) {
+            button.addEventListener("click", function () {
+                button.closest(".form-container").remove();
+            });
+        });
+    });
+</script>
+
+{% endblock %}

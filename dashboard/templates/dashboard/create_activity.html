@@ -1,0 +1,47 @@
+{% extends 'dashboard/main.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-body p-5">
+            <h2 class="mb-4 text-center fw-bold">Activity Submission Form</h2>
+
+            <form>
+            <div class="mb-3">
+                <label for="activityTitle" class="form-label">Activity Title</label>
+                <input type="text" class="form-control form-control-lg rounded-3" id="activityTitle" placeholder="Enter title">
+            </div>
+
+            <div class="mb-3">
+                <label for="activityDate" class="form-label">Date</label>
+                <input type="date" class="form-control form-control-lg rounded-3" id="activityDate">
+            </div>
+
+            <div class="mb-3">
+                <label for="activityTime" class="form-label">Time</label>
+                <input type="time" class="form-control form-control-lg rounded-3" id="activityTime">
+            </div>
+
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control form-control-lg rounded-3" id="location" placeholder="Enter location">
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control form-control-lg rounded-3" id="description" rows="4" placeholder="Describe the activity"></textarea>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg rounded-3">Submit Activity</button>
+            </div>
+            </form>
+
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+  
+{% endblock %}

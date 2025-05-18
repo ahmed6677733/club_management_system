@@ -1,0 +1,133 @@
+{% extends 'dashboard/main.html' %}
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs" id="committeeTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="committee-tab" data-bs-toggle="tab" href="#committee" role="tab">Committees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="expense-tab" data-bs-toggle="tab" href="#expense" role="tab">Expense Types</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="designation-tab" data-bs-toggle="tab" href="#designation" role="tab">Committee Designations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="donation-tab" data-bs-toggle="tab" href="#donation" role="tab">Donation Types</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body tab-content">
+
+      <!-- Committee Tab -->
+      <div class="tab-pane fade show active" id="committee" role="tabpanel">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for committee in committees %}
+            <tr>
+              <td>{{ committee.name }}</td>
+              <td>{{ committee.description }}</td>
+              <td>{{ committee.is_active|yesno:"Active,Inactive" }}</td>
+              <td>
+                <a href="{% url 'edit_committee' committee.id %}" class="btn btn-warning btn-sm">Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <a href="{% url 'add_committee' %}" class="btn btn-success">Create New Committee</a>
+      </div>
+
+      <!-- Expense Types Tab -->
+      <div class="tab-pane fade" id="expense" role="tabpanel">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expense in expense_types %}
+            <tr>
+              <td>{{ expense.name }}</td>
+              <td>{{ expense.description }}</td>
+              <td>
+                <a href="{% url 'expense_type_edit' expense.id %}" class="btn btn-warning btn-sm">Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <a href="{% url 'expense_type_add' %}" class="btn btn-success">Add Expense Type</a>
+      </div>
+
+      <!-- Committee Designations Tab -->
+      <div class="tab-pane fade" id="designation" role="tabpanel">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for designation in committee_designations %}
+            <tr>
+              <td>{{ designation.name }}</td>
+              <td>{{ designation.description }}</td>
+              <td>
+                <a href="{% url 'designation_edit' designation.id %}" class="btn btn-warning btn-sm">Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <a href="{% url 'designation_add' %}" class="btn btn-success">Add Designation</a>
+      </div>
+
+      <!-- Donation Types Tab -->
+      <div class="tab-pane fade" id="donation" role="tabpanel">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Unit</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for donation in donation_types %}
+            <tr>
+              <td>{{ donation.name }}</td>
+              <td>{{ donation.unit_of_measure|default:"-" }}</td>
+              <td>{{ donation.description }}</td>
+              <td>{{ donation.is_active|yesno:"Active,Inactive" }}</td>
+              <td>
+                <a href="{% url 'edit_donation_type' donation.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'edit_donation_type' donation.id %}" class="btn btn-danger btn-sm">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <a href="{% url 'create_donation_type' %}" class="btn btn-success">Add Donation Type</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

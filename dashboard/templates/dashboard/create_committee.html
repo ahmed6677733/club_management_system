@@ -1,0 +1,99 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create Committee</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="border p-4 rounded shadow-sm">
+        {% csrf_token %}
+
+        <!-- Committee Form -->
+        <h4>Committee Details</h4>
+        <div class="mb-3">
+            <label for="{{ committee_form.name.id_for_label }}" class="form-label">Committee Name</label>
+            {{ committee_form.name }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ committee_form.description.id_for_label }}" class="form-label">Description</label>
+            {{ committee_form.description }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ committee_form.start_date.id_for_label }}" class="form-label">Start Date</label>
+            {{ committee_form.start_date }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ committee_form.end_date.id_for_label }}" class="form-label">End Date</label>
+            {{ committee_form.end_date }}
+        </div>
+
+        <hr>
+
+        <!-- Designation Formset -->
+        <h4>Designations</h4>
+        <div id="designation-formset">
+            {{ designation_formset.management_form }}
+            {% for form in designation_formset %}
+                <div class="designation-form border p-3 mb-2">
+                    <div class="mb-2">
+                        <label class="form-label">Designation Name</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">Is Active?</label>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-designation mt-2">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-primary mt-3" id="add-designation">
+            <i class="bi bi-plus-circle"></i> Add Designation
+        </button>
+
+        <hr>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-save"></i> Save Committee
+        </button>
+        <a href="{% url 'committee_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<!-- jQuery for Dynamic Formset -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#add-designation").click(function() {
+            var form_idx = $("#id_designations-TOTAL_FORMS").val();
+            var newForm = $("#designation-formset .designation-form:first").clone();
+            
+            newForm.find("input, textarea").each(function() {
+                var name = $(this).attr("name").replace("-0-", "-" + form_idx + "-");
+                var id = $(this).attr("id").replace("-0-", "-" + form_idx + "-");
+                $(this).attr({"name": name, "id": id}).val("");
+            });
+
+            newForm.appendTo("#designation-formset");
+            $("#id_designations-TOTAL_FORMS").val(parseInt(form_idx) + 1);
+        });
+
+        $(document).on("click", ".remove-designation", function() {
+            $(this).closest(".designation-form").remove();
+        });
+    });
+</script>
+{% endblock %}

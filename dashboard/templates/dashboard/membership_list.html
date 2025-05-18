@@ -1,0 +1,99 @@
+<!-- templates/membership/membership_list.html -->
+{% extends "dashboard/main.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Membership Management</h1>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link {% if request.GET.tab == 'membership-type' or not request.GET.tab %}active{% endif %}" href="?tab=membership-type">Membership Type</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if request.GET.tab == 'membership-fees' %}active{% endif %}" href="?tab=membership-fees">Membership Fees</a>
+    </li>
+  </ul>
+
+  <div class="tab-content mt-4">
+    <!-- Membership Type Tab -->
+    {% if request.GET.tab == 'membership-type' or not request.GET.tab %}
+    <div id="membership-type">
+      <h3 class="text-center mb-3">Membership Types</h3>
+
+      <!-- Add Membership Button -->
+      <div class="mb-3">
+        <a href="{% url 'create_membership' %}" class="btn btn-success">Create New Membership Type</a>
+      </div>
+
+      <!-- Membership List Table -->
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Membership Code</th>
+            <th scope="col">Name</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for membership in memberships %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ membership.mmtcode }}</td>
+            <td>{{ membership.name }}</td>
+            <td>{% if membership.status %}<p style="color: green;"> Active</p>{% else %}<p style="color: red;"> Inactive</p>{% endif %}</td>
+            <td>
+              <a href="{% url 'edit_membership' membership.id %}" class="btn btn-info btn-sm">Edit</a>
+              <a href="#" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">No membership types found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Membership Fees Tab -->
+    {% if request.GET.tab == 'membership-fees' %}
+    <div id="membership-fees">
+      <h3 class="text-center mb-3">Membership Fees</h3>
+
+      <!-- Add Membership Fee Button -->
+      <div class="mb-3">
+        <a href="{% url 'create_fee_name' %}" class="btn btn-success">Add Membership Fee</a>
+      </div>
+
+      <!-- Fees Table -->
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fee Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fee in fees %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ fee.name }}</td>
+            <td><a href="{% url 'edit_fee_name' fee.id %}" class="btn btn-warning btn-sm">Edit</a></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">No fees available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

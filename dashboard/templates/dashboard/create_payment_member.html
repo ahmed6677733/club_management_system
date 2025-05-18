@@ -1,0 +1,413 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="card-title mb-0">{{ title }}</h4>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="payment-form" class="needs-validation" novalidate>
+            {% csrf_token %}
+            {{ form.amount }}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Member Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.profile.label }}</label>
+                                {{ form.profile }}
+                                <div class="invalid-feedback">Please select a member</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.membership_type.label }}</label>
+                                {{ form.membership_type }}
+                                <div class="invalid-feedback">Please select a membership type</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.fee_structure.label }}</label>
+                                {{ form.fee_structure }}
+                                <small class="text-muted d-block" id="fee-structure-details"></small>
+                                <div class="invalid-feedback">Please select a fee structure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Payment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.payment_method.label }}</label>
+                                {{ form.payment_method }}
+                                <div class="invalid-feedback">Please select a payment method</div>
+                            </div>
+                            <div id="bank-details-field" class="mb-3 d-none">
+                                <label class="form-label fw-bold">{{ form.bank_details.label }}</label>
+                                {{ form.bank_details }}
+                                <div class="invalid-feedback">Please select bank details</div>
+                            </div>
+                            <div id="mobile-banking-field" class="mb-3 d-none">
+                                <label class="form-label fw-bold">{{ form.mobile_banking_details.label }}</label>
+                                {{ form.mobile_banking_details }}
+                                <div class="invalid-feedback">Please select mobile banking details</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.transaction_id.label }}</label>
+                                {{ form.transaction_id }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.proof_of_payment.label }}</label>
+                                {{ form.proof_of_payment }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.status.label }}</label>
+                                {{ form.status }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4" id="month-selection-section">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Payment Period</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.payment_year.label }} <span class="text-danger">*</span></label>
+                                {{ form.payment_year }}
+                                <div class="invalid-feedback">Please select a year</div>
+                                <small class="text-muted">Required for monthly payments</small>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label fw-bold d-block">{{ form.payment_months.label }}</label>
+                            <div class="alert alert-warning d-none" id="year-alert">
+                                <i class="fa fa-exclamation-circle me-2"></i> Please select a year before choosing months
+                            </div>
+                            <div class="row" id="months-container">
+                                {% for value, label in form.fields.payment_months.choices %}
+                                <div class="col-md-3 col-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input month-checkbox" type="checkbox" 
+                                               name="payment_months" 
+                                               id="id_payment_months_{{ forloop.counter0 }}" 
+                                               value="{{ value }}"
+                                               data-original-value="{{ value }}"
+                                               {% if value in form.payment_months.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="id_payment_months_{{ forloop.counter0 }}">
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="invalid-feedback">Please select at least one month for monthly payments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold">{{ form.payment_notes.label }}</label>
+                {{ form.payment_notes }}
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'user_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-2"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save me-2"></i> Save Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const paymentForm = document.getElementById('payment-form');
+    const paymentMethod = document.getElementById('id_payment_method');
+    const bankDetailsField = document.getElementById('bank-details-field');
+    const mobileBankingField = document.getElementById('mobile-banking-field');
+    const membershipType = document.getElementById('id_membership_type');
+    const feeStructure = document.getElementById('id_fee_structure');
+    const yearSelect = document.getElementById('id_payment_year');
+    const monthCheckboxes = document.querySelectorAll('.month-checkbox');
+    const yearAlert = document.getElementById('year-alert');
+    const monthSelectionSection = document.getElementById('month-selection-section');
+    const monthsCountContainer = document.getElementById('months-count-container');
+    const paymentAmountDisplay = document.getElementById('payment-amount');
+    const selectedMonthsCount = document.getElementById('selected-months-count');
+    const totalAmountDisplay = document.getElementById('total-amount');
+    const amountInput = document.getElementById('id_amount');
+    const feeStructureDetails = document.getElementById('fee-structure-details');
+
+    // Initialize form
+    function initializeForm() {
+        updatePaymentMethodFields();
+        toggleMonthCheckboxes();
+        
+        paymentMethod.addEventListener('change', updatePaymentMethodFields);
+        membershipType.addEventListener('change', loadFeeStructures);
+        feeStructure.addEventListener('change', updateFeeStructureDetails);
+        yearSelect.addEventListener('change', handleYearChange);
+        
+        monthCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateMonthValue);
+            checkbox.addEventListener('change', updateTotalAmount);
+        });
+
+        if (paymentForm.classList.contains('was-validated')) {
+            const isOneTime = feeStructure.selectedOptions[0]?.dataset.oneTime === 'True';
+            monthSelectionSection.classList.toggle('d-none', isOneTime);
+            monthsCountContainer.classList.toggle('d-none', isOneTime);
+        }
+    }
+
+    // Update payment method fields visibility
+    function updatePaymentMethodFields() {
+        const method = paymentMethod.value;
+        bankDetailsField.classList.toggle('d-none', method !== 'BANK_TRANSFER');
+        mobileBankingField.classList.toggle('d-none', method !== 'MOBILE_BANKING');
+    }
+
+    // Load fee structures
+    function loadFeeStructures() {
+        const membershipTypeId = membershipType.value;
+        if (!membershipTypeId) {
+            feeStructure.innerHTML = '<option value="">Select membership first</option>';
+            return;
+        }
+
+        feeStructure.innerHTML = '<option value="">Loading...</option>';
+        feeStructure.disabled = true;
+
+        fetch(`{% url 'get_fee_structures' %}?membership_type_id=${membershipTypeId}`)
+            .then(response => response.json())
+            .then(data => {
+                feeStructure.innerHTML = '<option value="">Select fee structure</option>';
+                data.forEach(item => {
+                    const option = new Option(
+                        `${item.fee_name__name} - $${item.amount}`,
+                        item.id,
+                        false,
+                        false
+                    );
+                    option.dataset.amount = item.amount;
+                    option.dataset.oneTime = item.is_one_time;
+                    feeStructure.appendChild(option);
+                });
+                feeStructure.disabled = false;
+                
+                if (feeStructure.dataset.initialValue) {
+                    feeStructure.value = feeStructure.dataset.initialValue;
+                    updateFeeStructureDetails();
+                }
+            })
+            .catch(error => {
+                feeStructure.innerHTML = '<option value="">Error loading fees</option>';
+                console.error('Error:', error);
+            });
+    }
+
+    // Update fee structure details
+    function updateFeeStructureDetails() {
+        const selectedOption = feeStructure.options[feeStructure.selectedIndex];
+        if (!selectedOption || !selectedOption.value) {
+            resetPaymentDetails();
+            return;
+        }
+
+        const amount = parseFloat(selectedOption.dataset.amount) || 0;
+        const isOneTime = selectedOption.dataset.oneTime === 'True';
+
+        paymentAmountDisplay.textContent = amount.toFixed(2);
+        feeStructureDetails.textContent = isOneTime ? 
+            "One-time payment (no monthly selection needed)" : 
+            `Monthly payment: $${amount.toFixed(2)} per month`;
+
+        monthSelectionSection.classList.toggle('d-none', isOneTime);
+        monthsCountContainer.classList.toggle('d-none', isOneTime);
+
+        if (isOneTime) {
+            totalAmountDisplay.textContent = amount.toFixed(2);
+            amountInput.value = amount;
+            monthCheckboxes.forEach(checkbox => checkbox.checked = false);
+            selectedMonthsCount.textContent = '0';
+        } else {
+            updateTotalAmount();
+        }
+    }
+
+    // Handle year selection change
+    function handleYearChange() {
+        toggleMonthCheckboxes();
+        updateMonthValues();
+        if (feeStructure.selectedIndex > 0) {
+            const isOneTime = feeStructure.options[feeStructure.selectedIndex].dataset.oneTime === 'True';
+            if (!isOneTime) {
+                updateTotalAmount();
+            }
+        }
+    }
+
+    // Toggle month checkboxes based on year selection
+    function toggleMonthCheckboxes() {
+        const isDisabled = !yearSelect.value;
+        monthCheckboxes.forEach(checkbox => {
+            checkbox.disabled = isDisabled;
+        });
+        yearAlert.classList.toggle('d-none', !isDisabled);
+    }
+
+    // Update month values with year
+    function updateMonthValues() {
+        const year = yearSelect.value;
+        if (year) {
+            monthCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checkbox.value = `${checkbox.dataset.originalValue} ${year}`;
+                }
+            });
+        }
+    }
+
+    // Update individual month value when checked
+    function updateMonthValue() {
+        if (this.checked && yearSelect.value) {
+            this.value = `${this.dataset.originalValue} ${yearSelect.value}`;
+        }
+    }
+
+    // Update total amount calculation
+    function updateTotalAmount() {
+        const selectedOption = feeStructure.options[feeStructure.selectedIndex];
+        if (!selectedOption || !selectedOption.value) return;
+
+        const amount = parseFloat(selectedOption.dataset.amount) || 0;
+        const selectedMonths = document.querySelectorAll('.month-checkbox:checked').length;
+        
+        selectedMonthsCount.textContent = selectedMonths;
+        const totalAmount = (amount * selectedMonths).toFixed(2);
+        totalAmountDisplay.textContent = totalAmount;
+        amountInput.value = totalAmount;
+    }
+
+    // Reset payment details
+    function resetPaymentDetails() {
+        paymentAmountDisplay.textContent = '0.00';
+        totalAmountDisplay.textContent = '0.00';
+        amountInput.value = '0';
+        feeStructureDetails.textContent = '';
+        monthSelectionSection.classList.remove('d-none');
+        monthsCountContainer.classList.remove('d-none');
+        selectedMonthsCount.textContent = '0';
+        monthCheckboxes.forEach(checkbox => checkbox.checked = false);
+    }
+
+    // Form validation
+    paymentForm.addEventListener('submit', function(event) {
+        if (!paymentForm.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        const feeStructureSelected = feeStructure.value;
+        if (feeStructureSelected) {
+            const isOneTime = feeStructure.options[feeStructure.selectedIndex].dataset.oneTime === 'True';
+            
+            // Update month values with year before submission
+            if (!isOneTime) {
+                updateMonthValues();
+                
+                const hasSelectedMonths = document.querySelectorAll('.month-checkbox:checked').length > 0;
+                const hasYear = yearSelect.value;
+                
+                if (!hasSelectedMonths) {
+                    event.preventDefault();
+                    document.querySelector('#month-selection-section .invalid-feedback').style.display = 'block';
+                }
+                
+                if (!hasYear) {
+                    event.preventDefault();
+                    yearSelect.classList.add('is-invalid');
+                }
+            }
+        }
+        
+        paymentForm.classList.add('was-validated');
+    }, false);
+
+    // Initialize the form
+    initializeForm();
+});
+</script>
+
+<style>
+.card-header {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+#total-amount {
+    font-size: 1.25rem;
+}
+
+#payment-amount, #selected-months-count {
+    font-weight: 500;
+}
+
+.was-validated .form-control:invalid, 
+.was-validated .form-select:invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-select:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.month-checkbox:disabled + label {
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+#year-alert {
+    margin-bottom: 1rem;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+</style>
+{% endblock %}

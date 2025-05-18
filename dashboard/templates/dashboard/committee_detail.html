@@ -1,0 +1,140 @@
+{% extends 'dashboard/main.html' %}  <!-- Assuming you have a base template -->
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Committees</h6>
+                    <a href="{% url 'add_committee' %}" class="btn btn-sm btn-primary">
+                        <i class="fa fa-plus"></i> Add New Committee
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- Committees Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="committeesTable" width="100%" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Designation</th>
+                                    <th>Members</th>
+                                    <th>Budget</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for committee in committees %}
+                                <tr>
+                                    <td>{{ committee.name }}</td>
+                                    <td>{{ committee.description|truncatechars:50 }}</td>
+                                    <td>{{ committee.designation.name }}</td>
+                                    <td>{{ committee.members.count }}</td>
+                                    <td>${{ committee.budget|default:"0.00" }}</td>
+                                    <td>
+                                        <a href="{% url 'committee_detail' committee.id %}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'committee_edit' committee.id %}" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'committee_delete' committee.id %}" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No committees found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information Cards -->
+        <div class="col-lg-4">
+            <!-- Expense Types Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Expense Types</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for expense_type in expense_types %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ expense_type.name }}
+                            <span class="badge badge-primary badge-pill">{{ expense_type.code }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No expense types found</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Designations Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Committee Designations</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for designation in committee_designations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ designation.name }}
+                            <span class="badge badge-info badge-pill">{{ designation.committees.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No designations found</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Donation Types Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Donation Types</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for donation_type in donation_types %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ donation_type.name }}
+                            <span class="badge badge-success badge-pill">{{ donation_type.code }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No donation types found</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- DataTables JavaScript -->
+<script>
+$(document).ready(function() {
+    $('#committeesTable').DataTable({
+        responsive: true,
+        columnDefs: [
+            { orderable: false, targets: -1 } // Disable sorting for actions column
+        ]
+    });
+});
+</script>
+{% endblock %}

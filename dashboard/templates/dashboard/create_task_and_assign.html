@@ -1,0 +1,80 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="mb-4">Create and Assign Task</h2>
+
+        {% if messages %}
+            <div class="alert alert-success" role="alert">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Create Task Section -->
+            <div class="card shadow-sm p-4 mb-4">
+                <h4 class="mb-3">Create Task</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ task_form.as_p }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs for Assigning Task -->
+            <div class="card shadow-sm p-4 mb-4">
+                <h4 class="mb-3">Choose Assignment Type</h4>
+
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs" id="taskTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="volunteer-tab" data-bs-toggle="tab" href="#volunteers" role="tab" aria-controls="volunteers" aria-selected="true">Assign to Volunteers</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="team-tab" data-bs-toggle="tab" href="#teams" role="tab" aria-controls="teams" aria-selected="false">Assign to Teams</a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="taskTabsContent">
+                    <!-- Volunteers Tab -->
+                    <div class="tab-pane fade show active" id="volunteers" role="tabpanel" aria-labelledby="volunteer-tab">
+                        <!-- Volunteer Selection (Dropdown) -->
+                        <div class="form-group mt-3">
+                            <label for="volunteer-select">Select Volunteers</label>
+                            <select class="form-select" id="volunteer-select" name="volunteers" multiple>
+                                {% for volunteer in volunteers %}
+                                    <option value="{{ volunteer.id }}">{{ volunteer.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Teams Tab -->
+                    <div class="tab-pane fade" id="teams" role="tabpanel" aria-labelledby="team-tab">
+                        <!-- Team Selection (Dropdown) -->
+                        <div class="form-group mt-3">
+                            <label for="team-select">Select Teams</label>
+                            <select class="form-select" id="team-select" name="teams" multiple>
+                                {% for team in teams %}
+                                    <option value="{{ team.id }}">{{ team.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-lg btn-primary">Create Task and Assign</button>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}

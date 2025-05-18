@@ -1,0 +1,114 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row">
+        <!-- Task Stats -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tasks</h5>
+                    <p class="card-text" id="total_tasks">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Tasks</h5>
+                    <p class="card-text" id="pending_tasks">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <p class="card-text" id="in_progress_tasks">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Tasks</h5>
+                    <p class="card-text" id="completed_tasks">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Tasks</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody id="recent_tasks">
+                    <tr><td colspan="3" class="text-center">No tasks found</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- AJAX Script to Fetch Volunteer Dashboard Data -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function fetchVolunteerDashboardData() {
+        $.ajax({
+            url: '{% url "volunteer_dashboard" %}',
+            method: 'GET',
+            success: function(data) {
+                $('#total_tasks').text(data.total_tasks);
+                $('#pending_tasks').text(data.pending_tasks);
+                $('#in_progress_tasks').text(data.in_progress_tasks);
+                $('#completed_tasks').text(data.completed_tasks);
+
+                let committeeList = $('#committee_list');
+                committeeList.empty();
+                if (data.committees.length > 0) {
+                    data.committees.forEach(committee => {
+                        committeeList.append(`<li class="list-group-item">${committee.name}</li>`);
+                    });
+                } else {
+                    committeeList.append(`<li class="list-group-item">No committees found</li>`);
+                }
+
+                let recentTasksTable = $('#recent_tasks');
+                recentTasksTable.empty();
+                if (data.recent_tasks.length > 0) {
+                    data.recent_tasks.forEach(task => {
+                        recentTasksTable.append(
+                            `<tr>
+                                <td>${task.title}</td>
+                                <td>${task.status}</td>
+                                <td>${task.due_date || 'N/A'}</td>
+                            </tr>`
+                        );
+                    });
+                } else {
+                    recentTasksTable.append(`<tr><td colspan="3" class="text-center">No tasks found</td></tr>`);
+                }
+            }
+        });
+    }
+
+    // Fetch data every 1 minute
+    setInterval(fetchVolunteerDashboardData, 60000);
+    fetchVolunteerDashboardData();
+</script>
+
+{% endblock %}

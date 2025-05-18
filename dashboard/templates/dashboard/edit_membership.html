@@ -1,0 +1,105 @@
+{% extends 'dashboard/main.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Edit Membership Type</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Membership Type Section -->
+                <h5 class="mb-3">Membership Type</h5>
+                <div class="mb-3">
+                    {{ membership_form.as_p }}
+                </div>
+
+                <!-- Fee Structure Section -->
+                <h5 class="mt-4">Fee Structure</h5>
+                <div id="fee-structure-formset">
+                    {{ fee_formset.management_form }}
+                    
+                    <table class="table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fee Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Amount</th>
+                                <th>One-Time</th>
+                                <th>Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in fee_formset %}
+                                <tr class="fee-form">
+                                    <td>{{ form.fee_name }}</td>
+                                    <td>{{ form.start_date }}</td>
+                                    <td>{{ form.end_date }}</td>
+                                    <td>{{ form.amount }}</td>
+                                    <td class="text-center">{{ form.is_one_time }}</td>
+                                    <td class="text-center">{{ form.is_active }}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-fee">
+                                            <i class="fa fa-trash"></i> 
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="button" id="add-fee" class="btn btn-success mt-3">
+                    <i class="fa fa-plus"></i> Add Fee Structure
+                </button>
+                <button type="submit" class="btn btn-primary mt-3">Update Membership</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap & jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function() {
+        let formsetPrefix = '{{ fee_formset.prefix }}';
+        let totalForms = $('#id_' + formsetPrefix + '-TOTAL_FORMS');
+
+        $('#add-fee').click(function() {
+            let formIdx = totalForms.val();
+            let emptyRow = $('.fee-form:first').clone();
+
+            // Update field names and IDs
+            emptyRow.find('input, select').each(function() {
+                let name = $(this).attr('name').replace('-0-', '-' + formIdx + '-');
+                let id = $(this).attr('id').replace('-0-', '-' + formIdx + '-');
+                $(this).attr({'name': name, 'id': id});
+
+                // Reset input values
+                if ($(this).is(':checkbox')) {
+                    $(this).prop('checked', false); // Fixes checkbox issue
+                } else {
+                    $(this).val('');
+                }
+            });
+
+            // Append new row
+            $('table tbody').append(emptyRow);
+            totalForms.val(parseInt(formIdx) + 1);
+        });
+
+        // Remove fee row
+        $(document).on('click', '.remove-fee', function() {
+            $(this).closest('.fee-form').remove();
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,713 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+<style>
+    .user-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header-gradient {
+        padding: 1.25rem 1.5rem;
+        color: white;
+        border-bottom: none;
+    }
+    
+    .admin-header {
+        background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+    }
+    
+    .volunteer-header {
+        background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%);
+    }
+    
+    .member-header {
+        background: linear-gradient(135deg, #38b000 0%, #2b9348 100%);
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .user-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-img-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        margin-right: 1.25rem;
+    }
+    
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-badge {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    
+    .status-active {
+        background-color: #2ecc71;
+    }
+    
+    .user-info {
+        flex-grow: 1;
+    }
+    
+    .user-name {
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+    
+    .user-email {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+    
+    .user-phone {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .user-details {
+        margin-bottom: 1.5rem;
+    }
+    
+    .details-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .details-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    
+    .details-list li {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .user-actions {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .action-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+    
+    .skill-tag {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #212529;
+        padding: 0.25em 0.6em;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .user-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin: 1rem 0;
+    }
+    
+    .family-member-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .family-member-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .download-btn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    
+    .download-btn:hover {
+        background-color: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .download-btn i {
+        margin-right: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-img-container {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .user-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">User Management</h1>
+            <p class="mb-0 text-muted">Manage all users in the system</p>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="addDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-plus me-2"></i> Add New
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="addDropdown">
+                {% if request.user.is_superuser %}
+                <li><a class="dropdown-item" href="#"><i class="fa fa-user-shield me-2"></i>Add Admin</a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="#"><i class="fa fa-user me-2"></i>Add Member</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fa fa-hands-helping me-2"></i>Add Volunteer</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                        <i class="fa fa-users me-2"></i> Users
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content pt-3" id="mainTabContent">
+                <!-- USERS TAB -->
+                <div class="tab-pane fade show active" id="users" role="tabpanel">
+                    <!-- Nested Role Tabs -->
+                    <ul class="nav nav-pills mb-4 justify-content-center" id="roleTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="admins-tab" data-bs-toggle="pill" data-bs-target="#admins" type="button" role="tab">
+                                <i class="fa fa-user-shield me-1"></i> Admins
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="members-tab" data-bs-toggle="pill" data-bs-target="#members" type="button" role="tab">
+                                <i class="fa fa-user me-1"></i> Members
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="volunteers-tab" data-bs-toggle="pill" data-bs-target="#volunteers" type="button" role="tab">
+                                <i class="fa fa-hands-helping me-1"></i> Volunteers
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="roleTabContent">
+                        <!-- Admins Tab -->
+                        <div class="tab-pane fade show active" id="admins" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="section-header mb-0">
+                                    <h5><i class="fa fa-user-shield text-primary"></i> System Administrators</h5>
+                                </div>
+                                <div>
+                                    {% if request.user.is_superuser %}
+                                    <a href="#" class="btn btn-primary btn-sm me-2">
+                                        <i class="fa fa-plus me-1"></i> Add Admin
+                                    </a>
+                                    {% endif %}
+                                    <a href="?download=pdf&role=admin" class="download-btn btn-sm">
+                                        <i class="fa fa-file-pdf"></i> Download as PDF
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {% if admins %}
+                            <div class="user-grid">
+                                {% for user in admins %}
+                                <div class="user-card">
+                                    <div class="card-header-gradient admin-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 text-white">{{ user.full_name|default:user.username|truncatechars:20 }}</h5>
+                                            <span class="badge bg-white text-primary">Admin</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="user-meta">
+                                            <div class="profile-img-container">
+                                                <img src="{{ user.profile_pic.url|default:'https://via.placeholder.com/150' }}" class="profile-img" alt="Profile">
+                                                <div class="status-badge status-active"></div>
+                                            </div>
+                                            <div class="user-info">
+                                                <h5 class="user-name">{{ user.full_name|default:user.username }}</h5>
+                                                <p class="user-email">{{ user.email }}</p>
+                                                <p class="user-phone">
+                                                    <i class="fa fa-phone me-1"></i>{{ user.phone_number|default:"No phone" }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="user-details">
+                                            <h6 class="details-title">Admin Details</h6>
+                                            <ul class="details-list">
+                                                <li>
+                                                    <strong>Role:</strong> 
+                                                    {% if user.is_superuser %}
+                                                    <span class="badge bg-danger">Super Admin</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary">Staff Admin</span>
+                                                    {% endif %}
+                                                </li>
+                                                <li>
+                                                    <strong>Joined:</strong> 
+                                                    {{ user.date_joined|date:"M d, Y" }}
+                                                </li>
+                                                <li>
+                                                    <strong>Last Login:</strong> 
+                                                    {{ user.last_login|date:"M d, Y"|default:"Never" }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="user-actions">
+                                            <a href="{% url 'profile_detail' user.id %}" class="action-btn btn btn-outline-primary btn-sm">
+                                                <i class="fa fa-eye"></i> View
+                                            </a>
+                                            <a href="{% url 'profile_edit' user.id %}" class="action-btn btn btn-outline-secondary btn-sm">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
+                                            {% if request.user.is_superuser and user != request.user %}
+                                            <a href="#" class="action-btn btn btn-outline-danger btn-sm">
+                                                <i class="fa fa-trash"></i> Remove
+                                            </a>
+                                            {% endif %}
+                                            <a href="?download=pdf&member_id={{ user.id }}" class="action-btn btn btn-outline-dark btn-sm">
+                                                <i class="fa fa-download"></i> PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-user-shield text-gray-400"></i>
+                                <h5>No Administrators Found</h5>
+                                <p class="mb-4">There are currently no admin users in the system.</p>
+                                {% if request.user.is_superuser %}
+                                <a href="#" class="btn btn-primary">
+                                    <i class="fa fa-plus me-1"></i> Add First Admin
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Members Tab -->
+                        <div class="tab-pane fade" id="members" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="section-header mb-0">
+                                    <h5><i class="fa fa-user text-success"></i> Primary Members</h5>
+                                </div>
+                                <div>
+                                    <a href="#" class="btn btn-success btn-sm me-2">
+                                        <i class="fa fa-plus me-1"></i> Add Member
+                                    </a>
+                                    <a href="?download=pdf&role=member" class="download-btn btn-sm">
+                                        <i class="fa fa-file-pdf"></i> Download as PDF
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {% if members %}
+                            <div class="row g-4">
+                                {% for user in members %}
+                                <div class="col-12">
+                                    <div class="card mb-4">
+                                        <div class="card-body">
+                                            <div class="row align-items-stretch g-3">
+                                                <!-- Primary Member Card -->
+                                                <div class="col-lg-4">
+                                                    <div class="user-card">
+                                                        <div class="card-header-gradient member-header">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <h5 class="mb-0 text-white">Member Profile</h5>
+                                                                <span class="badge bg-white text-success">Member</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="user-meta">
+                                                                <div class="profile-img-container">
+                                                                    <img src="{{ user.profile_pic.url|default:'https://via.placeholder.com/150' }}" class="profile-img" alt="Profile">
+                                                                    <div class="status-badge status-active"></div>
+                                                                </div>
+                                                                <div class="user-info">
+                                                                    <h5 class="user-name">{{ user.full_name }}</h5>
+                                                                    <p class="user-email">{{ user.email }}</p>
+                                                                    <p class="user-phone">
+                                                                        <i class="fa fa-phone me-1"></i>{{ user.phone_number|default:"No phone" }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {% if user.profile %}
+                                                            <div class="user-details">
+                                                                <h6 class="details-title">Family Info</h6>
+                                                                <ul class="details-list">
+                                                                    {% if user.profile.father_name %}
+                                                                    <li><strong>Father:</strong> {{ user.profile.father_name }}</li>
+                                                                    {% endif %}
+                                                                    {% if user.profile.mother_name %}
+                                                                    <li><strong>Mother:</strong> {{ user.profile.mother_name }}</li>
+                                                                    {% endif %}
+                                                                    {% if user.profile.present_address %}
+                                                                    <li>
+                                                                        <strong>Address:</strong> 
+                                                                        <span class="text-truncate d-inline-block" style="max-width: 150px;">{{ user.profile.present_address }}</span>
+                                                                    </li>
+                                                                    {% endif %}
+                                                                </ul>
+                                                            </div>
+                                                            {% endif %}
+                                                            
+                                                            <div class="user-actions">
+                                                                <a href="{% url 'profile_detail' user.id %}" class="action-btn btn btn-outline-primary btn-sm">
+                                                                    <i class="fa fa-eye"></i> View
+                                                                </a>
+                                                                <a href="{% url 'profile_edit' user.id %}" class="action-btn btn btn-outline-secondary btn-sm">
+                                                                    <i class="fa fa-edit"></i> Edit
+                                                                </a>
+                                                                <a href="#" class="action-btn btn btn-outline-danger btn-sm">
+                                                                    <i class="fa fa-trash"></i> Remove
+                                                                </a>
+                                                                <a href="?download=pdf&member_id={{ user.id }}" class="action-btn btn btn-outline-dark btn-sm">
+                                                                    <i class="fa fa-download"></i> PDF
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Family Members Detailed Card -->
+                                                <div class="col-lg-8">
+                                                    {% with family_by_primary|get_item:user.profile.id as family_list %}
+                                                    <div class="card h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h5 class="mb-0"><i class="fa fa-user-friends me-2"></i>Family Members ({{ family_list|length }})</h5>
+                                                                <a href="{% url 'add_family_member' user.id %}" class="btn btn-primary btn-sm">
+                                                                    <i class="fa fa-plus me-1"></i> Add Family Member
+                                                                </a>
+                                                            </div>
+                                                            {% if family_list %}
+                                                            <div class="family-scroll">
+                                                                <div class="row g-3">
+                                                                    {% for fm in family_list %}
+                                                                    <div class="col-md-6">
+                                                                        <div class="card family-member-card h-100">
+                                                                            <div class="card-body">
+                                                                                <div class="d-flex align-items-start gap-3 mb-3">
+                                                                                    {% if fm.user and fm.user.profile_pic %}
+                                                                                        <img src="{{ fm.user.profile_pic.url }}" class="profile-img" style="width: 60px; height: 60px;">
+                                                                                    {% elif fm.existing_member and fm.existing_member.user.profile_pic %}
+                                                                                        <img src="{{ fm.existing_member.user.profile_pic.url }}" class="profile-img" style="width: 60px; height: 60px;">
+                                                                                    {% else %}
+                                                                                        <img src="{% static 'media/default/profile-default.jpg' %}" class="profile-img" style="width: 60px; height: 60px;">
+                                                                                    {% endif %}
+                                                                                    <div class="flex-grow-1">
+                                                                                        <h6 class="user-name mb-0">
+                                                                                            {% if fm.user %}
+                                                                                                {{ fm.user.full_name }}
+                                                                                            {% elif fm.existing_member %}
+                                                                                                {{ fm.existing_member.user.full_name }}
+                                                                                            {% else %}
+                                                                                                {{ fm.name|default:"Family Member" }}
+                                                                                            {% endif %}
+                                                                                        </h6>
+                                                                                        <p class="text-muted small mb-0">
+                                                                                            {% if fm.relationship %}{{ fm.relationship.name }}{% else %}Family Member{% endif %}
+                                                                                        </p>
+                                                                                        {% if fm.is_existing_member and fm.existing_member %}
+                                                                                            <span class="badge bg-success mt-1">Existing Member</span>
+                                                                                        {% endif %}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="mt-2 pt-2 border-top">
+                                                                                    <ul class="list-unstyled small mb-0">
+                                                                                        <li class="mb-1"><i class="fa fa-id-card me-2"></i><strong>Membership ID:</strong> 
+                                                                                            {% if fm.is_existing_member and fm.existing_member %}
+                                                                                                {{ fm.existing_member.membership_id }}
+                                                                                            {% else %}
+                                                                                                {{ fm.membership_id }}
+                                                                                            {% endif %}
+                                                                                        </li>
+                                                                                        <li class="mb-1"><i class="fa fa-birthday-cake me-2"></i><strong>Age:</strong> 
+                                                                                            {% if fm.is_existing_member and fm.existing_member and fm.existing_member.user.profile.date_of_birth %}
+                                                                                                {{ fm.existing_member.user.profile.date_of_birth|timesince }} old
+                                                                                            {% else %}
+                                                                                                {{ fm.age|default:"-" }}
+                                                                                            {% endif %}
+                                                                                        </li>
+                                                                                        <li class="mb-1"><i class="fa fa-user-tag me-2"></i><strong>Nominee:</strong> 
+                                                                                            {% if fm.is_nominee %}
+                                                                                                <span class="badge bg-info">Yes ({{ fm.percentage|default:0 }}%)</span>
+                                                                                            {% else %}
+                                                                                                <span class="badge bg-secondary">No</span>
+                                                                                            {% endif %}
+                                                                                        </li>
+                                                                                        <li><i class="fa fa-check-circle me-2"></i><strong>Existing Member:</strong> 
+                                                                                            {% if fm.is_existing_member %}
+                                                                                                <span class="badge bg-success">Yes</span>
+                                                                                            {% else %}
+                                                                                                <span class="badge bg-warning text-dark">No</span>
+                                                                                            {% endif %}
+                                                                                        </li>
+                                                                                        
+                                                                                        {% if fm.is_existing_member and fm.existing_member %}
+                                                                                            <!-- Show details from the existing member profile -->
+                                                                                            <li class="mt-2"><i class="fa fa-user me-2"></i><strong>Member Since:</strong> 
+                                                                                                {{ fm.existing_member.joining_date|date:"M d, Y" }}
+                                                                                            </li>
+                                                                                            {% if fm.existing_member.user.phone_number %}
+                                                                                            <li class="mt-1"><i class="fa fa-phone me-2"></i><strong>Phone:</strong> 
+                                                                                                {{ fm.existing_member.user.phone_number }}
+                                                                                            </li>
+                                                                                            {% endif %}
+                                                                                            {% if fm.existing_member.user.email %}
+                                                                                            <li class="mt-1"><i class="fa fa-envelope me-2"></i><strong>Email:</strong> 
+                                                                                                {{ fm.existing_member.user.email }}
+                                                                                            </li>
+                                                                                            {% endif %}
+                                                                                        {% elif fm.user %}
+                                                                                            <li class="mt-2"><i class="fa fa-link me-2"></i><strong>Linked User:</strong> 
+                                                                                                <span class="text-truncate d-inline-block" style="max-width: 150px;">{{ fm.user.email }}</span>
+                                                                                            </li>
+                                                                                        {% endif %}
+                                                                                    </ul>
+                                                                                </div>
+                                                                                <div class="user-actions mt-3">
+                                                                                    {% if fm.is_existing_member and fm.existing_member %}
+                                                                                        <a href="{% url 'profile_detail' fm.existing_member.user.id %}" class="btn btn-sm btn-outline-primary">
+                                                                                            <i class="fa fa-eye me-1"></i> View Member Profile
+                                                                                        </a>
+                                                                                    {% endif %}
+                                                                                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                                                                                        <i class="fa fa-edit me-1"></i> Edit
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                            {% else %}
+                                                            <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
+                                                                <i class="fa fa-users-slash text-gray-400 mb-3" style="font-size: 3rem;"></i>
+                                                                <h5 class="text-muted mb-3">No family members registered</h5>
+                                                                <a href="#" class="btn btn-primary">
+                                                                    <i class="fa fa-plus me-1"></i> Add First Family Member
+                                                                </a>
+                                                            </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    {% endwith %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="empty-state">
+                                        <i class="fa fa-user"></i>
+                                        <h5>No Primary Members Found</h5>
+                                        <p class="mb-4">There are currently no primary members in the system.</p>
+                                        <a href="#" class="btn btn-success">
+                                            <i class="fa fa-plus me-1"></i> Add First Member
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Volunteers Tab -->
+                        <div class="tab-pane fade" id="volunteers" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="section-header mb-0">
+                                    <h5><i class="fa fa-hands-helping text-warning"></i> Volunteers</h5>
+                                </div>
+                                <div>
+                                    {% if request.user.is_superuser or request.user.is_staff %}
+                                    <a href="#" class="btn btn-warning btn-sm me-2">
+                                        <i class="fa fa-plus me-1"></i> Add Volunteer
+                                    </a>
+                                    {% endif %}
+                                    <a href="?download=pdf&role=volunteer" class="download-btn btn-sm">
+                                        <i class="fa fa-file-pdf"></i> Download as PDF
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {% if volunteers %}
+                            <div class="user-grid">
+                                {% for user in volunteers %}
+                                <div class="user-card">
+                                    <div class="card-header-gradient volunteer-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 text-white">{{ user.full_name|default:user.username|truncatechars:20 }}</h5>
+                                            <span class="badge bg-white text-warning">Volunteer</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="user-meta">
+                                            <div class="profile-img-container">
+                                                <img src="{{ user.profile_pic.url|default:'https://via.placeholder.com/150' }}" class="profile-img" alt="Profile">
+                                                <div class="status-badge status-active"></div>
+                                            </div>
+                                            <div class="user-info">
+                                                <h5 class="user-name">{{ user.full_name|default:user.username }}</h5>
+                                                <p class="user-email">{{ user.email }}</p>
+                                                <p class="user-phone">
+                                                    <i class="fa fa-phone me-1"></i>{{ user.phone_number|default:"No phone" }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="user-details">
+                                            <h6 class="details-title">Volunteer Details</h6>
+                                            <ul class="details-list">
+                                                <li>
+                                                    <strong>Skills:</strong> 
+                                                    {% if user.profile.skills.all %}
+                                                        {% for skill in user.profile.skills.all %}
+                                                        <span class="skill-tag">{{ skill.name }}</span>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <span class="text-muted">None specified</span>
+                                                    {% endif %}
+                                                </li>
+                                                <li>
+                                                    <strong>Availability:</strong> 
+                                                    {{ user.profile.availability|default:"Not specified" }}
+                                                </li>
+                                                <li>
+                                                    <strong>Interests:</strong> 
+                                                    {{ user.profile.interests|default:"Not specified"|truncatechars:30 }}
+                                                </li>
+                                                <li>
+                                                    <strong>Joined:</strong> 
+                                                    {{ user.date_joined|date:"M d, Y" }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="user-actions">
+                                            <a href="{% url 'profile_detail' user.id %}" class="action-btn btn btn-outline-primary btn-sm">
+                                                <i class="fa fa-eye"></i> View
+                                            </a>
+                                            <a href="{% url 'profile_edit' user.id %}" class="action-btn btn btn-outline-secondary btn-sm">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
+                                            <a href="#" class="action-btn btn btn-outline-danger btn-sm">
+                                                <i class="fa fa-trash"></i> Remove
+                                            </a>
+                                            <a href="?download=pdf&member_id={{ user.id }}" class="action-btn btn btn-outline-dark btn-sm">
+                                                <i class="fa fa-download"></i> PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-hands-helping text-gray-400"></i>
+                                <h5>No Volunteers Found</h5>
+                                <p class="mb-4">There are currently no volunteers in the system.</p>
+                                {% if request.user.is_superuser or request.user.is_staff %}
+                                <a href="#" class="btn btn-warning">
+                                    <i class="fa fa-plus me-1"></i> Add First Volunteer
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

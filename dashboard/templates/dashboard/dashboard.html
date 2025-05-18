@@ -1,0 +1,217 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-primary">Report</h2>
+
+    <!-- First Row of Cards -->
+    <div class="row">
+        <!-- Total Committees Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Committees</h5>
+                    <p><strong>{{ total_committees }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Committees Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Active Committees</h5>
+                    <p><strong>{{ active_committees }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inactive Committees Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Inactive Committees</h5>
+                    <p><strong>{{ inactive_committees }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row of Cards -->
+    <div class="row">
+        
+
+        <!-- Total Committee Registrations Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Committee Registrations</h5>
+                    <p><strong>{{ total_committee_registrations }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Committee Registrations Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Active Committee Registrations</h5>
+                    <p><strong>{{ active_committee_registrations }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inactive Committee Registrations Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Inactive Committee Registrations</h5>
+                    <p><strong>{{ inactive_committee_registrations }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Third Row of Cards -->
+    <div class="row">
+        
+
+        <!-- Total Tasks Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tasks</h5>
+                    <p><strong>{{ total_tasks }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Tasks Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Tasks</h5>
+                    <p><strong>{{ pending_tasks }}</strong></p>
+                </div>
+            </div>
+        </div>
+        <!-- Completed Tasks Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Tasks</h5>
+                    <p><strong>{{ completed_tasks }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fourth Row of Cards -->
+    <div class="row">
+        <!-- In Progress Tasks Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress Tasks</h5>
+                    <p><strong>{{ in_progress_tasks }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- Row for Charts -->
+    <div class="row mt-4">
+        <!-- Task Status Chart -->
+        <div class="col-md-6">
+            <h5>Task Status</h5>
+            <canvas id="taskStatusChart"></canvas>
+        </div>
+
+        <!-- Committee Status Chart -->
+        <div class="col-md-6">
+            <h5>Committee Status</h5>
+            <canvas id="committeeStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Function to fetch real-time data using AJAX
+    function fetchDashboardData() {
+        $.ajax({
+            url: '{% url "get_dashboard_data" %}',  // URL to your Django view
+            method: 'GET',
+            success: function(data) {
+                // Update the charts with the new data
+                updateCharts(data);
+                // Update the card values as well
+                $('#total_committees').text(data.total_committees);
+                $('#active_committees').text(data.active_committees);
+                $('#inactive_committees').text(data.inactive_committees);
+                $('#total_committee_registrations').text(data.total_committee_registrations);
+                $('#active_committee_registrations').text(data.active_committee_registrations);
+                $('#inactive_committee_registrations').text(data.inactive_committee_registrations);
+                $('#total_tasks').text(data.total_tasks);
+                $('#pending_tasks').text(data.pending_tasks);
+                $('#in_progress_tasks').text(data.in_progress_tasks);
+                $('#completed_tasks').text(data.completed_tasks);
+            }
+        });
+    }
+
+    // Function to update the charts with new data
+    function updateCharts(data) {
+        // Task Status Chart
+        taskStatusChart.data.datasets[0].data = [data.pending_tasks, data.in_progress_tasks, data.completed_tasks];
+        taskStatusChart.update();
+
+        // Committee Status Chart
+        committeeStatusChart.data.datasets[0].data = [data.active_committees, data.inactive_committees];
+        committeeStatusChart.update();
+    }
+
+    // Initialize the charts
+    var ctx1 = document.getElementById('taskStatusChart').getContext('2d');
+    var taskStatusChart = new Chart(ctx1, {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed'],
+            datasets: [{
+                data: [0, 0, 0],  // Initial data (to be replaced by AJAX)
+                backgroundColor: ['#f39c12', '#3498db', '#2ecc71'],
+                borderColor: ['#f39c12', '#3498db', '#2ecc71'],
+                borderWidth: 1
+            }]
+        }
+    });
+
+    var ctx2 = document.getElementById('committeeStatusChart').getContext('2d');
+    var committeeStatusChart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Active Committees', 'Inactive Committees'],
+            datasets: [{
+                label: 'Committees',
+                data: [0, 0],  // Initial data (to be replaced by AJAX)
+                backgroundColor: ['#2ecc71', '#e74c3c'],
+                borderColor: ['#2ecc71', '#e74c3c'],
+                borderWidth: 1
+            }]
+        }
+    });
+
+    // Fetch data every 5 seconds
+    setInterval(fetchDashboardData, 60000);
+
+    // Initial data load
+    fetchDashboardData();
+</script>
+{% endblock %}

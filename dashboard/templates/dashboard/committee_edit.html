@@ -1,0 +1,135 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header rounded-top-4">
+      <h4 class="mb-0"><i class="bi bi-people-fill me-2"></i> Edit Committee</h4>
+    </div>
+
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Committee Info -->
+        <div class="mb-4">
+          <h5 class="fw-bold mb-3 border-bottom pb-2">Committee Details</h5>
+          <div class="row g-4">
+            {% for field in form.visible_fields %}
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ field.label_tag }}
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Committee Members -->
+        <div class="mb-4">
+          <h5 class="fw-bold mb-3 border-bottom pb-2">Committee Members</h5>
+          {{ formset.management_form }}
+
+          <div id="formset-container">
+            {% for form in formset %}
+            <div class="border p-3 rounded-3 mb-3 bg-white form-row shadow-sm position-relative">
+              {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+              {% endfor %}
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  {{ form.member.label_tag }}
+                  {{ form.member }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.designation.label_tag }}
+                  {{ form.designation }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.activities.label_tag }}
+                  {{ form.activities }}  <!-- Added the activities field here -->
+                </div>
+                <div class="col-md-2">
+                  <div class="form-check mt-2">
+                    {{ form.is_active }}
+                    {{ form.is_active.label_tag }}
+                  </div>
+                </div>
+                <div class="col-md-1 text-end">
+                  <button type="button" class="btn btn-outline-danger remove-form">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="text-end mt-3">
+            <button type="button" id="add-form" class="btn btn-outline-primary">
+              <i class="bi bi-plus-circle me-1"></i> Add Member
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center pt-3">
+          <button type="submit" class="btn btn-success px-4 py-2 rounded-pill">
+            <i class="bi bi-save me-2"></i> Save Committee
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Icons + jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  let formIndex = {{ formset.total_form_count }};  // Starting index for forms
+  const prefix = '{{ formset.prefix }}';
+
+  // Add new form
+  $('#add-form').click(function () {
+    const formRow = $('#formset-container .form-row:first').clone(true);
+
+    // Update names and IDs of form fields to reflect the new index
+    formRow.find(':input').each(function () {
+        const name = $(this).attr('name');
+        if (name) {
+            const newName = name.replace(/-\d+-/, `-${formIndex}-`);
+            const newId = 'id_' + newName;
+            $(this).attr({'name': newName, 'id': newId});
+            if ($(this).is(':checkbox')) {
+                $(this).prop('checked', false);
+            } else {
+                $(this).val('');
+            }
+        }
+    });
+
+    // Remove previous error messages and append the new form
+    formRow.find('.text-danger').remove();
+    $('#formset-container').append(formRow);
+    formIndex++;
+    
+    // Update TOTAL_FORMS in the management form
+    $('#id_' + prefix + '-TOTAL_FORMS').val(formIndex);
+  });
+
+  // Remove a form
+  $(document).on('click', '.remove-form', function () {
+    if ($('.form-row').length > 1) {
+      $(this).closest('.form-row').remove();
+      formIndex--;
+      // Update TOTAL_FORMS in the management form
+      $('#id_' + prefix + '-TOTAL_FORMS').val(formIndex);
+    }
+  });
+</script>
+{% endblock %}
