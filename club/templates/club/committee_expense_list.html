@@ -1,0 +1,41 @@
+{% extends 'dashboard/main.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">All Committee Expenses</h4>
+            <a href="{% url 'committee_expense_add' %}" class="btn btn-light btn-sm">Add New</a>
+        </div>
+        <div class="card-body">
+            {% if expenses %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Committee</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Transaction ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.committee }}</td>
+                        <td>{{ expense.expense_type }}</td>
+                        <td>{{ expense.amount }}</td>
+                        <td>{{ expense.expense_date }}</td>
+                        <td>{{ expense.get_payment_method_display }}</td>
+                        <td>{{ expense.transaction_id }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No expenses found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
