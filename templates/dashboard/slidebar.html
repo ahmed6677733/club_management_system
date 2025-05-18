@@ -1,0 +1,83 @@
+<!-- partial:partials/_sidebar.html -->
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+        {% if user.role == 'Admin' %}
+        <li class="nav-item {% if request.path == '/dashboard/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/profile/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'club_profile' %}">
+                <span class="menu-title">Club Profile</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/committees/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'committee_list' %}">
+                <span class="menu-title">Club Committee List</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/tasks/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'task_list' %}">
+                <span class="menu-title">Task List</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/membership-list/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'membership_list' %}">
+                <span class="menu-title">Membership Type</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/membership-applications/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'membership_applications' %}">
+                <span class="menu-title">Membership Applications</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/user-dashboard/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'user_dashboard' %}">
+                <span class="menu-title">Member List</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/donations/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'donation_list' %}">
+                <span class="menu-title">Donation List</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/expenses/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'expense_list' %}">
+                <span class="menu-title">Expenses List</span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/role-change-request-list/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'role_change_request_list' %}">
+                <span class="menu-title">Role Change Request 
+                    {% if pending_count > 0 %}
+                        <span class="badge badge-danger">{{ pending_count }}</span>
+                    {% endif %}
+                </span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/dashboard/teams/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'team_list' %}">
+                <span class="menu-title">Team List
+                </span>
+            </a>
+        </li>
+        <li class="nav-item {% if request.path == '/payment/payment-details/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'payment_details_list' %}">
+                <span class="menu-title">Bank & Mobile Banking List
+                </span>
+            </a>
+        </li>
+        {% else %}
+        <li class="nav-item {% if request.path == '/dashboard/volunteer-dashboard/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'volunteer_dashboard' %}">
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+
+        {% endif %}
+    </ul>
+</nav>
+
+
+

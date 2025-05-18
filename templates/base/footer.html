@@ -1,0 +1,128 @@
+{% load static %}
+<footer class="site-footer">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <!-- Logo and Club Info -->
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                <div class="footer-brand d-flex align-items-center">
+                    <img src="{% static 'base/images/logo.png' %}" class="footer-logo img-fluid me-3" alt="Uttara Dynamic Club">
+                    <div>
+                        <h3 class="mb-0">Uttara Dynamic Club</h3>
+                        <p class="mb-0 text-muted">Building stronger community through fitness</p>
+                    </div>
+                </div>
+                <p class="mt-3">Join us today and transform your lifestyle with our expert trainers and state-of-the-art facilities.</p>
+            </div>
+
+            <!-- Operating Hours -->
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                <h5 class="footer-title">Operating Hours</h5>
+                <ul class="list-unstyled">
+                    <li class="d-flex justify-content-between py-2 border-bottom">
+                        <span>Monday - Friday</span>
+                        <span>6:00 AM - 6:00 PM</span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2">
+                        <span>Saturday - Sunday</span>
+                        <span>6:30 AM - 8:30 PM</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Social Links and Copyright -->
+            <div class="col-lg-4 col-md-12">
+                <div class="social-links mb-4">
+                    <a href="#" class="social-icon bi-instagram" aria-label="Instagram"></a>
+                    <a href="#" class="social-icon bi-facebook" aria-label="Facebook"></a>
+                    <a href="#" class="social-icon bi-twitter" aria-label="Twitter"></a>
+                    <a href="#" class="social-icon bi-whatsapp" aria-label="WhatsApp"></a>
+                </div>
+                
+                <div class="footer-legal">
+                    <p class="copyright-text mb-2">© 2025 Uttara Dynamic Club. All rights reserved.</p>
+                    <p class="developer-credit">Developed by <a href="#" class="text-decoration-none">Joy Debnath</a></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</footer>
+
+<style>
+    .site-footer {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 3rem 0 0;
+        position: relative;
+    }
+    
+    .footer-brand {
+        margin-bottom: 1rem;
+    }
+    
+    .footer-logo {
+        max-height: 50px;
+    }
+    
+    .footer-title {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+    
+    .footer-title:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 40px;
+        height: 2px;
+        background: #81B29A;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .social-icon {
+        color: #4a5568;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .social-icon:hover {
+        color: #81B29A;
+        transform: translateY(-3px);
+    }
+    
+    .copyright-text {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+    
+    .developer-credit {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+    
+    .developer-credit a {
+        color: #81B29A;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .footer-brand {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .footer-logo {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
