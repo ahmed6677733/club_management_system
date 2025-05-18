@@ -1,0 +1,522 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Custom Styling -->
+<style>
+  .overview-card {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+  }
+
+  .overview-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .permission-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+  
+  .action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .approved-row {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+  
+  .rejected-row {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+  
+  .pending-row {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
+  
+  .donate-btn-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+  }
+</style>
+
+<div class="container py-4 mt-5">
+  <div class="card shadow-lg rounded-4 overflow-hidden">
+
+    <!-- 💼 Financial Overview -->
+    <div class="card-body border-bottom">
+      <h5 class="text-secondary fw-bold mb-4">💼 Financial Overview</h5>
+      <div class="row text-center g-4">
+        <div class="col-md-4">
+          <div class="overview-card p-4 h-100">
+            <div class="icon-circle bg-success text-white mb-3 mx-auto">
+              <i class="bi bi-cash-coin fs-3"></i>
+            </div>
+            <h6 class="text-muted">Total Donations</h6>
+            <p class="fs-3 fw-bold text-success mb-0">৳ {{ total_donation|floatformat:2 }}</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="overview-card p-4 h-100">
+            <div class="icon-circle bg-danger text-white mb-3 mx-auto">
+              <i class="bi bi-credit-card-2-front fs-3"></i>
+            </div>
+            <h6 class="text-muted">Total Expenses</h6>
+            <p class="fs-3 fw-bold text-danger mb-0">৳ {{ total_expense|floatformat:2 }}</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="overview-card p-4 h-100">
+            <div class="icon-circle bg-info text-white mb-3 mx-auto">
+              <i class="bi bi-wallet2 fs-3"></i>
+            </div>
+            <h6 class="text-muted">Balance</h6>
+            <p class="fs-3 fw-bold text-info mb-0">৳ {{ balance|floatformat:2 }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 👥 Committee Information -->
+    <div class="card-body border-bottom">
+      <h5 class="text-secondary fw-bold mb-4">👥 Committee Information</h5>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <p><strong>Name:</strong> {{ committee.name }}</p>
+          <p><strong>Start Date:</strong> {{ committee.start_date }}</p>
+          <p><strong>End Date:</strong> {{ committee.end_date|default:"Ongoing" }}</p>
+        </div>
+        <div class="col-md-6 mb-3">
+          <p><strong>Created By:</strong> {{ committee.created_by.full_name }}</p>
+          <p><strong>Status:</strong>
+            {% if committee.is_active %}
+              <span class="badge bg-success px-3 py-2">Active</span>
+            {% else %}
+              <span class="badge bg-secondary px-3 py-2">Inactive</span>
+            {% endif %}
+          </p>
+          {% if user_permissions.can_view_expense %}
+          <a href="{% url 'committee_report' committee.id %}" class="btn btn-outline-primary btn-sm mt-2">
+            <i class="bi bi-file-earmark-text me-1"></i> Generate Report
+          </a>
+          {% endif %}
+          
+          <!-- Display User Permissions -->
+          {% if request.user.is_authenticated %}
+          <div class="mt-3">
+            <p class="mb-1"><strong>Your Permissions:</strong></p>
+            <div class="d-flex gap-2 flex-wrap">
+              {% if user_permissions.can_create_expense %}
+                <span class="badge bg-success permission-badge">Create Expenses</span>
+              {% endif %}
+              {% if user_permissions.can_approve_expense %}
+                <span class="badge bg-primary permission-badge">Approve Expenses</span>
+              {% endif %}
+              {% if user_permissions.can_reject_expense %}
+                <span class="badge bg-danger permission-badge">Reject Expenses</span>
+              {% endif %}
+              {% if user_permissions.can_approve_donation %}
+                <span class="badge bg-success permission-badge">Approve Donations</span>
+              {% endif %}
+              {% if user_permissions.can_reject_donation %}
+                <span class="badge bg-danger permission-badge">Reject Donations</span>
+              {% endif %}
+              {% if not user_permissions.can_create_expense and not user_permissions.can_approve_expense and not user_permissions.can_reject_expense and not user_permissions.can_approve_donation and not user_permissions.can_reject_donation %}
+                <span class="badge bg-secondary permission-badge">No Special Permissions</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="donate-btn-container">
+      {% if user_permissions.can_create_expense %}
+        <a href="{% url 'add_committee_expense' committee.id %}" id="addExpenseBtn" class="btn btn-danger btn-lg rounded-circle shadow d-none" title="Add Expense">
+          <i class="bi bi-plus-circle"></i>
+        </a>
+      {% endif %}
+      <a href="{% url 'create_donation' committee.id %}" id="addDonationBtn" class="btn btn-success btn-lg rounded-circle shadow" title="Donate Now">
+        <i class="bi bi-cash-stack"></i>
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card-header bg-white border-bottom-0">
+      <ul class="nav nav-tabs card-header-tabs" id="committeeTabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#expenses" type="button">Expenses</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#donations" type="button">Donations</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#members" type="button">Designations</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="card-body">
+      <div class="tab-content" id="committeeTabsContent">
+
+        <!-- Expenses -->
+        <div class="tab-pane fade show active" id="expenses">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-semibold mb-0">📑 Expense List</h5>
+            {% if user_permissions.can_create_expense %}
+            <a href="{% url 'add_committee_expense' committee.id %}" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-plus-circle me-1"></i> Add Expense
+            </a>
+            {% endif %}
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>By</th>
+                  <th>Expense Type</th>
+                  <th>Amount (৳)</th>
+                  <th>Status</th>
+                  <th>Proof</th>
+                  <th>Notes</th>
+                  {% if user_permissions.can_approve_expense or user_permissions.can_reject_expense %}
+                  <th>Actions</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for expense in expenses %}
+                <tr class="{% if expense.status == 'approved' %}approved-row{% elif expense.status == 'rejected' %}rejected-row{% else %}pending-row{% endif %}">
+                  <td>{{ expense.expense_date }}</td>
+                  <td>{{ expense.title }}</td>
+                  <td>{{ expense.members.member.user.full_name }}</td>
+                  <td>{{ expense.expense_type.name }}</td>
+                  <td>৳ {{ expense.amount|floatformat:2 }}</td>
+                  <td>
+                    <span class="badge 
+                      {% if expense.status == 'approved' %}bg-success
+                      {% elif expense.status == 'rejected' %}bg-danger
+                      {% else %}bg-warning text-dark{% endif %} status-badge">
+                      {{ expense.status|title }}
+                    </span>
+                    {% if expense.approved_by %}
+                      <small class="d-block">By: {{ expense.approved_by.full_name }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if expense.proof_of_payment %}
+                      <a href="{{ expense.proof_of_payment.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i> View
+                      </a>
+                    {% else %}<span class="text-muted">N/A</span>{% endif %}
+                  </td>
+                  <td>{{ expense.expense_notes|default:"-" }}</td>
+                  {% if user_permissions.can_approve_expense or user_permissions.can_reject_expense %}
+                  <td class="action-buttons">
+                    <div class="d-flex gap-2">
+                      {% if user_permissions.can_approve_expense %}
+                        {% if expense.status == 'pending' %}
+                        <form method="post" action="{% url 'approve_expense' expense.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                            <i class="bi bi-check-circle"></i> Approve
+                          </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-sm btn-success" disabled title="Already {% if expense.status == 'approved' %}approved{% else %}action taken{% endif %}">
+                          <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                        {% endif %}
+                      {% endif %}
+                      
+                      {% if user_permissions.can_reject_expense %}
+                        {% if expense.status == 'pending' %}
+                        <form method="post" action="{% url 'reject_expense' expense.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-danger" title="Reject">
+                            <i class="bi bi-x-circle"></i> Reject
+                          </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-sm btn-danger" disabled title="Already {% if expense.status == 'rejected' %}rejected{% else %}action taken{% endif %}">
+                          <i class="bi bi-x-circle"></i> Reject
+                        </button>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </td>
+                  {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="{% if user_permissions.can_approve_expense or user_permissions.can_reject_expense %}9{% else %}8{% endif %}" class="text-center text-muted">
+                    No expenses found.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="4">Total</th>
+                  <th>৳ {{ total_expense|floatformat:2 }}</th>
+                  <th colspan="{% if user_permissions.can_approve_expense or user_permissions.can_reject_expense %}4{% else %}3{% endif %}"></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Donations -->
+        <div class="tab-pane fade" id="donations">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-semibold mb-0">🎁 Donation List</h5>
+            <a href="{% url 'create_donation' committee.id %}" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-plus-circle me-1"></i> Add Donation
+            </a>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Date</th>
+                  <th>Donor</th>
+                  <th>Contact</th>
+                  <th>Donation Type</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Proof</th>
+                  <th>Note</th>
+                  {% if user_permissions.can_approve_donation or user_permissions.can_reject_donation %}
+                  <th>Actions</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for donation in donations %}
+                <tr>
+                  <td>{{ donation.donation_date }}</td>
+                  <td>
+                    {{ donation.name|default:"Anonymous" }}<br>
+                    <span class="badge bg-{{ donation.is_member|yesno:'primary,secondary' }}">{{ donation.is_member|yesno:'Member,Guest' }}</span>
+                  </td>
+                  <td>
+                    <small>Email: {{ donation.email|default:"-" }}<br>
+                    Phone: {{ donation.phone|default:"-" }}</small>
+                  </td>
+                  <td>{{ donation.donation_type.name }}</td>
+                  <td>৳ {{ donation.amount|floatformat:2 }}</td>
+                  <td><span class="badge bg-{{ donation.status|lower }}">{{ donation.status|title }}</span></td>
+                  <td>
+                    {% if donation.proof_of_payment %}
+                      <a href="{{ donation.proof_of_payment.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i> View
+                      </a>
+                    {% else %}<span class="text-muted">N/A</span>{% endif %}
+                  </td>
+                  <td>{{ donation.donattion_notes|default:"-" }}</td>
+                  {% if user_permissions.can_approve_donation or user_permissions.can_reject_donation %}
+                  <td class="action-buttons">
+                    <div class="d-flex gap-2">
+                      {% if user_permissions.can_approve_donation %}
+                        {% if donation.status == 'pending' %}
+                        <form method="post" action="{% url 'approve_donation' donation.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                            <i class="bi bi-check-circle"></i> Approve
+                          </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-sm btn-success" disabled title="Already {% if donation.status == 'approved' %}approved{% else %}action taken{% endif %}">
+                          <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                        {% endif %}
+                      {% endif %}
+                      
+                      {% if user_permissions.can_reject_donation %}
+                        {% if donation.status == 'pending' %}
+                        <form method="post" action="{% url 'reject_donation' donation.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-danger" title="Reject">
+                            <i class="bi bi-x-circle"></i> Reject
+                          </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-sm btn-danger" disabled title="Already {% if donation.status == 'rejected' %}rejected{% else %}action taken{% endif %}">
+                          <i class="bi bi-x-circle"></i> Reject
+                        </button>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </td>
+                  {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="{% if user_permissions.can_approve_donation or user_permissions.can_reject_donation %}9{% else %}8{% endif %}" class="text-center text-muted">
+                    No donations found.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="4">Total</th>
+                  <th>৳ {{ total_donation|floatformat:2 }}</th>
+                  <th colspan="{% if user_permissions.can_approve_donation or user_permissions.can_reject_donation %}4{% else %}3{% endif %}"></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Members -->
+        <div class="tab-pane fade" id="members">
+          <h5 class="fw-semibold mb-3">👤 Designation List</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Member Name</th>
+                  <th>Role</th>
+                  <th>Activities</th>
+                  <th>From</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for designation in designations %}
+                <tr>
+                  <td>{{ designation.member.user.full_name }}</td>
+                  <td>{{ designation.designation }}</td>
+                  <td>
+                    {% for activity in designation.activities.all %}
+                      <span class="badge bg-secondary">{{ activity.title }}</span>
+                    {% empty %}
+                      <span class="text-muted">None</span>
+                    {% endfor %}
+                  </td>
+                  <td>{{ designation.joined_on }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">No designations found.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Approval Confirmation Modal -->
+<div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="approvalModalLabel">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to <span id="actionType">approve</span> this item?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="approvalForm" method="post" action="">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary" id="confirmAction">Confirm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle floating action buttons based on active tab
+    function toggleButtons(tabId) {
+        document.getElementById('addExpenseBtn')?.classList.add('d-none');
+        document.getElementById('addDonationBtn')?.classList.add('d-none');
+        if (tabId === 'expenses') {
+            document.getElementById('addExpenseBtn')?.classList.remove('d-none');
+        } else if (tabId === 'donations') {
+            document.getElementById('addDonationBtn')?.classList.remove('d-none');
+        }
+    }
+
+    // Initialize tab functionality
+    const tabButtons = document.querySelectorAll('#committeeTabs button');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('shown.bs.tab', function(e) {
+            const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
+            toggleButtons(tabId);
+        });
+    });
+
+    // Set initial state
+    toggleButtons('expenses');
+    
+    // Handle approve/reject confirmation
+    document.querySelectorAll('form[action*="approve"], form[action*="reject"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const isApprove = this.action.includes('approve');
+            const actionType = isApprove ? 'approve' : 'reject';
+            const itemType = this.action.includes('expense') ? 'expense' : 'donation';
+            
+            // Set modal content
+            document.getElementById('actionType').textContent = actionType;
+            document.getElementById('approvalForm').action = this.action;
+            
+            // Style confirm button
+            const confirmBtn = document.getElementById('confirmAction');
+            confirmBtn.className = isApprove ? 'btn btn-success' : 'btn btn-danger';
+            confirmBtn.innerHTML = `<i class="bi ${isApprove ? 'bi-check-circle' : 'bi-x-circle'}"></i> ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
+            modal.show();
+        });
+    });
+
+    // Handle modal confirmation
+    document.getElementById('confirmAction').addEventListener('click', function() {
+        document.getElementById('approvalForm').submit();
+    });
+});
+</script>
+
+{% endblock content %}

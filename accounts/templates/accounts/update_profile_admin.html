@@ -1,0 +1,131 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Update Profile</h2>
+    
+    <form method="POST" enctype="multipart/form-data" action="{% url 'update_profile' %}">
+        {% csrf_token %}
+        
+        <!-- Combined Card for User and Profile Information -->
+        <div class="card shadow-lg" style="max-width: 900px; margin: 0 auto; border-radius: 15px;">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">User & Profile Information</h4>
+            </div>
+            <div class="card-body">
+                <!-- User Information -->
+                <h5 class="mb-3 text-muted">User Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            {{ user_form.full_name }}
+                            {% if user_form.full_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in user_form.full_name.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            {{ user_form.phone_number }}
+                            {% if user_form.phone_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in user_form.phone_number.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="profile_pic" class="form-label">Profile Picture</label>
+                            {{ user_form.profile_pic }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in user_form.email.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Information -->
+                <h5 class="mb-3 text-muted">Profile Information</h5>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="father_name" class="form-label">Father's Name</label>
+                            {{ member_form.father_name }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="mother_name" class="form-label">Mother's Name</label>
+                            {{ member_form.mother_name }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="present_address" class="form-label">Present Address</label>
+                            {{ member_form.present_address }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="permanent_address" class="form-label">Permanent Address</label>
+                            {{ member_form.permanent_address }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            {{ member_form.date_of_birth }}
+                        </div>
+                        <div class="form-group">
+                            <label for="blood_group" class="form-label">Blood Group</label>
+                            {{ member_form.blood_group }}
+                        </div>
+                        <div class="form-group">
+                            <label for="nid" class="form-label">NID</label>
+                            {{ member_form.nid }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Gender</label>
+                            {{ member_form.gender }}
+                        </div>
+                        <div class="form-group">
+                            <label for="selected_period" class="form-label">Membership Period</label>
+                            {{ member_form.selected_period }}
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group text-center">
+                    <input type="submit" class="btn btn-primary btn-lg mt-4 px-5 py-2 rounded-pill" text="Update Profile" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

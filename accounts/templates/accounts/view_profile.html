@@ -1,0 +1,136 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="padding: 50px 0 0 0;">
+    <!-- Back Button & Role Change Request -->
+    <div class="d-flex justify-content-between mb-5">
+        <a href="{% url 'home' %}" class="btn btn-secondary rounded-pill">
+            <i class="fa fa-arrow-left"></i> Back to Home
+        </a>
+        {% if is_membership_approved %}
+            <a href="{% url 'request_role_change' %}" class="btn btn-secondary rounded-pill">
+                <i class="fa fa-exchange-alt"></i> Apply for Role Change
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Profile Overview -->
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card shadow-lg border-light rounded">
+                <div class="card-body text-center">
+                    <!-- Profile Picture -->
+                    <img src="{{ user.profile_pic.url }}" alt="Profile Picture" class="rounded-circle mb-4" width="180">
+                    
+                    <!-- User Basic Info -->
+                    <h4 class="font-weight-bold text-dark mb-2">{{ user.full_name|title }}</h4>
+                    <p class="text-muted">{{ user.get_role_display }}</p>
+                    <p class="text-muted mb-3">{{ user.email }}</p>
+                    <p class="font-weight-light text-muted">{{ user.phone_number }}</p>
+                    <a href="{% url 'payment_history' %}" class="btn btn-warning rounded-pill" data-toggle="tooltip" data-placement="top" title="Update Profile">
+                        <i class="fa fa-edit"></i> Payment History
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Right Column: Detailed Profile Information -->
+        <div class="col-lg-8 col-md-12">
+            <div class="card shadow-lg border-light rounded">
+                <div class="card-header text-center bg-light">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Left Side Profile Info -->
+                        <div class="col-md-6 mb-4">
+                            <p><strong>Father's Name:</strong> {{ profile.father_name }}</p>
+                            <p><strong>Mother's Name:</strong> {{ profile.mother_name }}</p>
+                            <p><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</p>
+                            <p><strong>Blood Group:</strong> {{ profile.get_blood_group_display }}</p>
+                            <p><strong>Gender:</strong> {{ profile.get_gender_display }}</p>
+                        </div>
+
+                        <!-- Right Side Profile Info -->
+                        <div class="col-md-6 mb-4">
+                            <p><strong>Present Address:</strong> {{ profile.present_address }}</p>
+                            <p><strong>Permanent Address:</strong> {{ profile.permanent_address }}</p>
+                            <p><strong>NID:</strong> {{ profile.nid }}</p>
+                            <p><strong>Membership ID:</strong> {{ profile.membership_id }}</p>
+                            <p><strong>Joining Date:</strong> {{ profile.joining_date }}</p>
+                            <p><strong>Selected Period:</strong> {{ profile.get_selected_period_display }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- Update Profile Button -->
+                    <div class="text-center mt-4">
+                        {% if is_membership_approved %}
+                            <a href="{% url 'create_family_member' %}" class="btn btn-outline-warning text-dark rounded-pill" data-toggle="tooltip" data-placement="top" title="Add Family Members">
+                                <i class="fa fa-user-plus"></i> Add Family Members
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'update_profile' %}" class="btn btn-warning rounded-pill" data-toggle="tooltip" data-placement="top" title="Update Profile">
+                            <i class="fa fa-edit"></i> Update Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Members Table -->
+    <hr>
+    <h5 class="mb-3 text-center">Family Members</h5>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Profile Picture</th>
+                    <th>Name</th>
+                    <th>Relationship</th>
+                    <th>Age</th>
+                    <th>Membership ID</th>
+                    <th>Nominee</th>
+                    <!--<th>Actions</th>-->
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for member in profile.family_members.all %}
+                <tr>
+                    <td>
+                        <img src="{{ member.user.profile_pic.url }}" alt="Profile Picture" class="rounded-circle" width="50" height="50">
+                    </td>
+                    <td>{{ member.user.full_name }}</td>
+                    <td>{{ member.relationship }}</td>
+                    <td>{{ member.age }}</td>
+                    <td>{{ member.membership_id|default:"N/A" }}</td>
+                    <td>
+                        {% if member.is_nominee %}
+                            <span class="badge bg-success">Yes ({{ member.percentage }}%)</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </td>
+                    <!--<td>-->
+                    <!--    <a href="" class="btn btn-warning btn-sm">-->
+                    <!--        <i class="fa fa-edit"></i> Edit-->
+                    <!--    </a>-->
+                    <!--    <a href="" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">-->
+                    <!--        <i class="fa fa-trash"></i> Remove-->
+                    <!--    </a>-->
+                    <!--</td>-->
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No family members added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Extra Space Below -->
+    <div class="mt-5"></div>
+</div>
+{% endblock %}

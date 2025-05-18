@@ -1,0 +1,81 @@
+{% extends 'dashboard/main.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Back Button -->
+    <div class="d-flex justify-content-between mb-5">
+        <a href="{% url 'home' %}" class="btn btn-secondary rounded-pill">
+            <i class="fa fa-arrow-left"></i> Back to Home
+        </a>
+        {% if is_membership_approved %}
+            <a href="{% url 'request_role_change' %}" class="btn btn-secondary rounded-pill">
+                <i class="fa fa-arrow-left"></i> Apply for Role Change
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Profile Overview -->
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card shadow-lg border-light rounded">
+                <div class="card-body text-center">
+                    <!-- Profile Picture -->
+                    <img src="{{ user.profile_pic.url }}" alt="Profile Picture" class="rounded-circle mb-4" width="180">
+                    
+                    <!-- User Basic Info -->
+                    <h4 class="font-weight-bold text-dark mb-2">{{ user.full_name|title }}</h4>
+                    <p class="text-muted">{{ user.get_role_display }}</p>
+                    <p class="text-muted mb-3">{{ user.email }}</p>
+                    <p class="font-weight-light text-muted">{{ user.phone_number }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Detailed Profile Information -->
+        <div class="col-lg-8 col-md-12">
+            <div class="card shadow-lg border-light rounded">
+                <div class="card-header text-center bg-light">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Left Side Profile Info -->
+                        <div class="col-md-6 mb-4">
+                            <p><strong>Father's Name:</strong> {{ profile.father_name }}</p>
+                            <p><strong>Mother's Name:</strong> {{ profile.mother_name }}</p>
+                            <p><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</p>
+                            <p><strong>Blood Group:</strong> {{ profile.get_blood_group_display }}</p>
+                            <p><strong>Gender:</strong> {{ profile.get_gender_display }}</p>
+                        </div>
+
+                        <!-- Right Side Profile Info -->
+                        <div class="col-md-6 mb-4">
+                            <p><strong>Present Address:</strong> {{ profile.present_address }}</p>
+                            <p><strong>Permanent Address:</strong> {{ profile.permanent_address }}</p>
+                            <p><strong>NID:</strong> {{ profile.nid }}</p>
+                            <p><strong>Membership ID:</strong> {{ profile.membership_id }}</p>
+                            <p><strong>Joining Date:</strong> {{ profile.joining_date }}</p>
+                            <p><strong>Selected Period:</strong> {{ profile.get_selected_period_display }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- Update Profile Button -->
+                    <div class="text-center mt-4">
+                        {% if is_membership_approved %}
+                            <a href="{% url 'create_family_member' %}" class="btn btn-outline-warning text-dark rounded-pill" data-toggle="tooltip" data-placement="top" title="Add Family Members">
+                                <i class="fa fa-user-plus"></i> Add Family Members
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'update_profile_dashboard' %}" class="btn btn-warning rounded-pill" data-toggle="tooltip" data-placement="top" title="Update Profile">
+                            <i class="fa fa-edit"></i> Update Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extra Space Below -->
+    <div class="mt-5"></div>
+</div>
+{% endblock %}

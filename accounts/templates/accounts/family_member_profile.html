@@ -1,0 +1,87 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="padding: 50px 0 0 0;">
+    <h1 class="text-center mb-5 text-primary">Profile</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card border-light shadow-sm rounded-lg">
+                <!-- Card Header -->
+                <div class="card-header text-center rounded-top">
+                    <h4 class="mb-0">{{ family_member.relationship }} - {{ family_member.primary_member.user.full_name }}</h4>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Left Column: Family Member Information -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3 text-dark">Family Member Information</h5>
+                            <ul class="list-unstyled">
+                                <li><strong><i class="fa fa-heart"></i> Relationship:</strong> {{ family_member.relationship }}</li>
+                                <li><strong><i class="fa fa-id-card-alt"></i> Membership ID:</strong> {{ family_member.membership_id }}</li>
+                                <li><strong><i class="fa fa-birthday-cake"></i> Age:</strong> {{ family_member.age }}</li>
+                                <li><strong><i class="fa fa-check-circle"></i> Nominee:</strong> 
+                                    {% if family_member.is_nominee %}
+                                        Yes ({{ family_member.percentage }}%)
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Right Column: Primary Member Information -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3 text-dark">Primary Member Information</h5>
+                            <ul class="list-unstyled">
+                                <li><strong><i class="fa fa-user"></i> Full Name:</strong> {{ family_member.primary_member.user.full_name }}</li>
+                                <li><strong><i class="fa fa-envelope"></i> Email:</strong> {{ family_member.primary_member.user.email }}</li>
+                                <li><strong><i class="fa fa-phone"></i> Phone:</strong> {{ family_member.primary_member.user.phone_number }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <hr class="my-4">
+
+                    <!-- Full Profile Section -->
+                    <h5 class="text-center text-dark">Full Profile Details</h5>
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <th>Primary Member Name</th>
+                                <td>{{ family_member.primary_member.user.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Primary Member Phone</th>
+                                <td>{{ family_member.primary_member.user.phone_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Primary Member Email</th>
+                                <td>{{ family_member.primary_member.user.email }}</td>
+                            </tr>
+                            <tr>
+                                <th>Nominee Status</th>
+                                <td>
+                                    {% if family_member.is_nominee %}
+                                        Yes ({{ family_member.percentage }}%)
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer text-center py-4 rounded-bottom">
+                    <a href="{% url 'family_member_dashboard' %}" class="btn btn-outline-primary btn-lg">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

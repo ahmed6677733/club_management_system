@@ -1,0 +1,151 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<br><br>
+<div class="container py-3">
+  <div class="card shadow">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Committee List</h4>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>Name</th>
+              <th class="d-none d-md-table-cell">Description</th>
+              <th>Donations (৳)</th>
+              <th>Expenses (৳)</th>
+              <th>Balance (৳)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for committee in committees %}
+            <tr>
+              <td>{{ committee.name }}</td>
+              <td class="d-none d-md-table-cell">{{ committee.description|truncatechars:30 }}</td>
+              <td>৳ {{ committee.total_donation|floatformat:2 }}</td>
+              <td>৳ {{ committee.total_expense|floatformat:2 }}</td>
+              <td>৳ {{ committee.balance|floatformat:2 }}</td>
+              <td>
+                <span class="badge bg-{% if committee.is_active %}success{% else %}danger{% endif %}">
+                  {{ committee.is_active|yesno:"Active,Inactive" }}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{% url 'committee_detail' committee.id %}" class="btn btn-warning btn-sm" title="View">
+                    <i class="fas fa-eye"></i>
+                    <span class="d-none d-md-inline"> View</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center">No committees found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      {% if committees.has_other_pages %}
+      <nav aria-label="Committee pagination">
+        <ul class="pagination justify-content-center mt-3">
+          {% if committees.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1" aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ committees.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+          {% endif %}
+          
+          {% for i in committees.paginator.page_range %}
+            {% if committees.number == i %}
+              <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+            {% elif i > committees.number|add:'-3' and i < committees.number|add:'3' %}
+              <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+          {% endfor %}
+          
+          {% if committees.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ committees.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ committees.paginator.num_pages }}" aria-label="Last">
+                <span aria-hidden="true">&raquo;&raquo;</span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  @media (max-width: 768px) {
+    .table-responsive {
+      border: 0;
+    }
+    .table thead {
+      display: none;
+    }
+    .table tr {
+      margin-bottom: 10px;
+      display: block;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: right;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    .table td:before {
+      content: attr(data-label);
+      font-weight: bold;
+      margin-right: 10px;
+      text-align: left;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+</style>
+
+<script>
+  // Add data-label attributes for mobile view
+  document.addEventListener('DOMContentLoaded', function() {
+    const headers = document.querySelectorAll('thead th');
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        if (index < headers.length) {
+          cell.setAttribute('data-label', headers[index].textContent);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
